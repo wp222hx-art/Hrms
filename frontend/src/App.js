@@ -14,6 +14,14 @@ import Payroll from './pages/payroll/Payroll';
 import SelfService from './pages/self/SelfService';
 import AdminConsole from './pages/admin/AdminConsole';
 
+// Funmode (game-style UI)
+import FunShell from './pages/funmode/FunShell';
+import Lobby from './pages/funmode/Lobby';
+import Quest from './pages/funmode/Quest';
+import Squad from './pages/funmode/Squad';
+import Loot from './pages/funmode/Loot';
+import Rank from './pages/funmode/Rank';
+
 import './styles/tokens.css';
 import './styles/global.css';
 
@@ -64,6 +72,15 @@ export default function App() {
           <Route path="/admin/tenants" element={
             <Protected allow={['super_admin']}><AdminConsole /></Protected>
           } />
+        </Route>
+
+        {/* Funmode — game-style UI (mobile-optimized cyberpunk) */}
+        <Route element={<Protected><FunShell /></Protected>}>
+          <Route path="/fun"        element={<Lobby />} />
+          <Route path="/fun/quest"  element={<Quest />} />
+          <Route path="/fun/squad"  element={<Squad />} />
+          <Route path="/fun/loot"   element={<Loot />} />
+          <Route path="/fun/rank"   element={<Rank />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

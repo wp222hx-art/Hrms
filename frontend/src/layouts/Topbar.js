@@ -135,6 +135,20 @@ export default function Topbar({ onMenu }) {
               className="topbar__dropdown-item"
               onClick={() => {
                 setUserOpen(false);
+                navigate('/fun');
+              }}
+              style={{
+                background: 'linear-gradient(90deg, rgba(255,46,200,0.12), rgba(124,77,255,0.12))',
+                fontWeight: 700,
+              }}
+            >
+              <span style={{ fontSize: 16 }}>⚡</span>
+              <span>炫酷模式 · Arena</span>
+            </button>
+            <button
+              className="topbar__dropdown-item"
+              onClick={() => {
+                setUserOpen(false);
                 logout();
                 navigate('/login', { replace: true });
               }}

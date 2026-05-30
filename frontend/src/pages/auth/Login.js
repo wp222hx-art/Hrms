@@ -7,8 +7,8 @@ import {
 import { userApi } from '../../mock/api';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../components/ui/Toast';
-import Button from '../../components/ui/Button';
 import './Login.css';
+import '../funmode/funmode.css';
 
 const ROLE_ICON = {
   super_admin: FaUserShield,
@@ -47,19 +47,35 @@ export default function Login() {
     return () => { cancelled = true; };
   }, []);
 
-  const handlePick = async (user) => {
+  const handlePick = async (user, opts = {}) => {
     setSubmitting(user.id);
-    // If there's an existing session for a different user, clear it first so
-    // the new role takes effect cleanly.
     if (session && session.userId !== user.id) {
       logout();
     }
     const s = await login({ user, tenantId: user.tenantId });
     toast.success(`${t('auth.loggedInAs')} ${user.name}`);
-    // Use the returned session (already up to date) so we don't depend on
-    // React's async state update.
-    navigate(s.role === 'super_admin' ? '/admin' : '/dashboard', { replace: true });
+    if (opts.funmode) {
+      navigate('/fun', { replace: true });
+    } else {
+      navigate(s.role === 'super_admin' ? '/admin' : '/dashboard', { replace: true });
+    }
   };
+
+  const enterFunmode = async () => {
+    const target =
+      users.find((u) => u.role === 'employee') ||
+      users.find((u) => u.role === 'manager') ||
+      users.find((u) => u.role === 'hr_admin') ||
+      users[0];
+    if (target) {
+      await handlePick(target, { funmode: true });
+    } else {
+      navigate('/fun', { replace: true });
+    }
+  };
+
+  // Backwards-compat alias used in some places below
+  const handleEnterFunmode = enterFunmode;
 
   const switchLang = () => {
     const next = i18n.language === 'zh' ? 'en' : 'zh';
@@ -131,6 +147,26 @@ export default function Login() {
             })}
           </div>
         )}
+
+        <button
+          type="button"
+          className="login__funmode"
+          onClick={enterFunmode}
+          disabled={!!submitting || loading}
+        >
+          <span className="login__funmode__emoji">🎮</span>
+          <span>进入炫酷模式 · Game Arena</span>
+          <span className="login__funmode__emoji">✨</span>
+        </button>
+        <div style={{
+          fontSize: 11,
+          color: 'var(--text-3, #6b7099)',
+          textAlign: 'center',
+          marginTop: 8,
+          letterSpacing: 1,
+        }}>
+          养成游戏视角 · 移动优先 · 等级/技能/连击/战利品
+        </div>
 
         <div className="login__footer">
           <small>© 2026 HRMS Cloud · PDPA / GDPR / 个人信息保护法 compliant</small>
