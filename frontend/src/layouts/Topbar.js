@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaBars, FaCaretDown, FaSignOutAlt, FaSyncAlt, FaGlobe } from 'react-icons/fa';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
+import NotificationBell from './NotificationBell';
 import { useApp } from '../context/AppContext';
 import './Topbar.css';
 
@@ -94,6 +95,9 @@ export default function Topbar({ onMenu }) {
       )}
 
       <div className="topbar__spacer" />
+
+      {/* Notifications (only for non-super_admin tenants) */}
+      {!isSuper && <NotificationBell />}
 
       {/* Language */}
       <div className="topbar__lang" ref={langRef}>

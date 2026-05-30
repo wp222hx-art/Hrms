@@ -1,0 +1,180 @@
+/* Workspace — Feishu-style hub */
+.workspace { padding: 0; }
+
+.ws-hero {
+  position: relative;
+  border-radius: var(--r-4);
+  overflow: hidden;
+  margin-bottom: var(--sp-6);
+  padding: var(--sp-7) var(--sp-7);
+  color: #fff;
+  background:
+    radial-gradient(1200px 200px at 10% 0%, rgba(255,255,255,.18), transparent 60%),
+    linear-gradient(135deg, var(--brand-600) 0%, var(--brand-500) 50%, #7c4dff 100%);
+  box-shadow: var(--sh-3);
+}
+.ws-hero__bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,.14), transparent 30%),
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,.10), transparent 30%);
+}
+.ws-hero__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+}
+.ws-hero__title { font-size: 28px; margin: 0 0 6px; font-weight: 700; }
+.ws-hero__subtitle { margin: 0; opacity: .9; font-size: 14px; }
+.ws-hero__wave { display: inline-block; animation: wsWave 1.5s ease-in-out infinite; }
+@keyframes wsWave { 0%,100% { transform: rotate(0); } 50% { transform: rotate(20deg); } }
+.ws-hero__date {
+  background: rgba(255,255,255,.18);
+  border-radius: var(--r-3);
+  padding: 10px 18px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+.ws-hero__date-num { font-size: 30px; font-weight: 800; line-height: 1; }
+.ws-hero__date-text { font-size: 12px; opacity: .9; margin-top: 4px; }
+
+.ws-hero__holiday {
+  position: relative;
+  margin-top: var(--sp-5);
+  padding: 10px 14px;
+  background: rgba(255,255,255,.16);
+  border-radius: var(--r-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.ws-section { margin-bottom: var(--sp-7); }
+.ws-section__head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--sp-4);
+}
+.ws-section__head h2 {
+  margin: 0; font-size: 16px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--text-1);
+}
+.ws-section__head h2 svg { color: var(--brand-500); }
+.ws-section__hint { font-size: 12px; color: var(--text-3); }
+
+.ws-app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--sp-3);
+}
+.ws-app {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-3);
+  padding: var(--sp-4) var(--sp-2);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.ws-app:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: var(--brand-300); }
+.ws-app__icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+.ws-app__icon--add {
+  background: var(--bg-mute);
+  color: var(--text-2);
+  font-size: 24px; font-weight: 300;
+  box-shadow: none;
+  border: 1px dashed var(--border-2);
+}
+.ws-app__label { font-size: 13px; color: var(--text-1); }
+.ws-app--ghost { background: transparent; }
+.ws-app--add .ws-app__label { color: var(--text-3); }
+.ws-tip { font-size: 12px; color: var(--text-3); margin-top: var(--sp-3); text-align: center; }
+
+.ws-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-7);
+}
+@media (max-width: 768px) { .ws-grid-2 { grid-template-columns: 1fr; } }
+
+.ws-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-3);
+  padding: var(--sp-4) var(--sp-5);
+  box-shadow: var(--sh-1);
+}
+.ws-card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--sp-3);
+}
+.ws-card__head h3 {
+  margin: 0; font-size: 14px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--text-1);
+}
+.ws-card__head h3 svg { color: var(--brand-500); }
+.ws-link {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-3); font-size: 12px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.ws-link:hover { color: var(--brand-500); }
+
+.ws-row {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-0);
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.ws-row:last-child { border-bottom: none; }
+.ws-row:hover { background: var(--bg-mute); border-radius: 6px; padding-left: 6px; padding-right: 6px; }
+.ws-row__icon {
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  background: var(--bg-mute);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.ws-row__icon--info    { background: rgba(59,99,236,.15);  color: var(--brand-500); }
+.ws-row__icon--success { background: rgba(16,185,129,.15); color: #10b981; }
+.ws-row__icon--warning { background: rgba(245,158,11,.15); color: #f59e0b; }
+.ws-row__icon--error   { background: rgba(239,68,68,.15);  color: #ef4444; }
+.ws-row__icon--approval{ background: rgba(124,77,255,.15); color: #7c4dff; }
+.ws-row__icon--message { background: rgba(6,182,212,.15);  color: #06b6d4; }
+
+.ws-row__body { flex: 1; min-width: 0; }
+.ws-row__title {
+  font-size: 14px; color: var(--text-1); font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ws-row__sub {
+  font-size: 12px; color: var(--text-3); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.ws-pill {
+  font-size: 11px; padding: 2px 8px; border-radius: 12px;
+  flex-shrink: 0;
+}
+.ws-pill--pending { background: rgba(245,158,11,.18); color: #d97706; }
+.ws-pill--alert   { background: rgba(239,68,68,.18);  color: #dc2626; }
+.ws-pill--pin     { background: rgba(124,77,255,.18); color: #7c4dff; }
+
+.ws-empty {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 13px;
+}

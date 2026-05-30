@@ -57,7 +57,7 @@ export default function Login() {
     if (opts.funmode) {
       navigate('/fun', { replace: true });
     } else {
-      navigate(s.role === 'super_admin' ? '/admin' : '/dashboard', { replace: true });
+      navigate(s.role === 'super_admin' ? '/admin' : '/workspace', { replace: true });
     }
   };
 

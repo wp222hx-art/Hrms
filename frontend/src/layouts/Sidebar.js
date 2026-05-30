@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {
   FaTachometerAlt, FaUsers, FaClock, FaCalendarAlt, FaReceipt,
   FaMoneyBillWave, FaUserCircle, FaCogs, FaShieldAlt, FaBuilding,
+  FaTh, FaCommentDots, FaProjectDiagram, FaBullhorn, FaSitemap,
 } from 'react-icons/fa';
 import { useApp } from '../context/AppContext';
 import './Sidebar.css';
@@ -14,7 +15,12 @@ const NAV_BY_ROLE = {
     { to: '/admin/tenants',   key: 'nav.tenants',      icon: FaBuilding },
   ],
   hr_admin: [
+    { to: '/workspace',       key: 'nav.workspace',    icon: FaTh },
     { to: '/dashboard',       key: 'nav.dashboard',    icon: FaTachometerAlt },
+    { to: '/im',              key: 'nav.im',           icon: FaCommentDots },
+    { to: '/workflow',        key: 'nav.workflow',     icon: FaProjectDiagram },
+    { to: '/announcements',   key: 'nav.announcements',icon: FaBullhorn },
+    { to: '/departments',     key: 'nav.departments',  icon: FaSitemap },
     { to: '/employees',       key: 'nav.employees',    icon: FaUsers },
     { to: '/attendance',      key: 'nav.attendance',   icon: FaClock },
     { to: '/leave',           key: 'nav.leave',        icon: FaCalendarAlt },
@@ -23,14 +29,22 @@ const NAV_BY_ROLE = {
     { to: '/self-service',    key: 'nav.selfService',  icon: FaUserCircle },
   ],
   manager: [
+    { to: '/workspace',       key: 'nav.workspace',    icon: FaTh },
     { to: '/dashboard',       key: 'nav.dashboard',    icon: FaTachometerAlt },
+    { to: '/im',              key: 'nav.im',           icon: FaCommentDots },
+    { to: '/workflow',        key: 'nav.workflow',     icon: FaProjectDiagram },
+    { to: '/announcements',   key: 'nav.announcements',icon: FaBullhorn },
+    { to: '/departments',     key: 'nav.departments',  icon: FaSitemap },
     { to: '/employees',       key: 'nav.employees',    icon: FaUsers },
     { to: '/leave',           key: 'nav.leave',        icon: FaCalendarAlt },
     { to: '/expense',         key: 'nav.expense',      icon: FaReceipt },
     { to: '/self-service',    key: 'nav.selfService',  icon: FaUserCircle },
   ],
   employee: [
-    { to: '/dashboard',       key: 'nav.dashboard',    icon: FaTachometerAlt },
+    { to: '/workspace',       key: 'nav.workspace',    icon: FaTh },
+    { to: '/im',              key: 'nav.im',           icon: FaCommentDots },
+    { to: '/workflow',        key: 'nav.workflow',     icon: FaProjectDiagram },
+    { to: '/announcements',   key: 'nav.announcements',icon: FaBullhorn },
     { to: '/attendance',      key: 'nav.myAttendance', icon: FaClock },
     { to: '/leave',           key: 'nav.myLeave',      icon: FaCalendarAlt },
     { to: '/expense',         key: 'nav.myExpense',    icon: FaReceipt },

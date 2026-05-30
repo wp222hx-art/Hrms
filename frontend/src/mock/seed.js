@@ -88,13 +88,86 @@ export const TENANTS = [
     statutorySchema: 'my',
     accentColor: '#f59e0b',
   },
+  {
+    id: 'tnt-nusa-id',
+    name: 'PT Nusantara Digital',
+    nameZh: '努桑塔拉数码',
+    region: 'ID',
+    currency: 'IDR',
+    timezone: 'Asia/Jakarta',
+    plan: 'Professional',
+    status: 'active',
+    employeeCount: 22,
+    seats: 50,
+    createdAt: '2025-03-15',
+    statutorySchema: 'id',
+    accentColor: '#ef4444',
+  },
+  {
+    id: 'tnt-saigon-vn',
+    name: 'Saigon Tech JSC',
+    nameZh: '西贡科技',
+    region: 'VN',
+    currency: 'VND',
+    timezone: 'Asia/Ho_Chi_Minh',
+    plan: 'Professional',
+    status: 'active',
+    employeeCount: 20,
+    seats: 50,
+    createdAt: '2025-05-08',
+    statutorySchema: 'vn',
+    accentColor: '#facc15',
+  },
+  {
+    id: 'tnt-bangkok-th',
+    name: 'Bangkok Trade Co',
+    nameZh: '曼谷贸易',
+    region: 'TH',
+    currency: 'THB',
+    timezone: 'Asia/Bangkok',
+    plan: 'Starter',
+    status: 'trial',
+    employeeCount: 16,
+    seats: 25,
+    createdAt: '2025-10-01',
+    statutorySchema: 'th',
+    accentColor: '#0ea5e9',
+  },
+  {
+    id: 'tnt-manila-ph',
+    name: 'Manila BPO Services',
+    nameZh: '马尼拉外包服务',
+    region: 'PH',
+    currency: 'PHP',
+    timezone: 'Asia/Manila',
+    plan: 'Starter',
+    status: 'active',
+    employeeCount: 18,
+    seats: 30,
+    createdAt: '2025-08-22',
+    statutorySchema: 'ph',
+    accentColor: '#8b5cf6',
+  },
 ];
 
 const SALARY_BAND = {
-  SG:  { min: 3500,  max: 14000, currency: 'SGD' }, // monthly gross
-  CN:  { min: 8000,  max: 45000, currency: 'CNY' },
-  MY:  { min: 3000,  max: 12000, currency: 'MYR' },
+  SG:  { min: 3500,  max: 14000,    currency: 'SGD' },
+  CN:  { min: 8000,  max: 45000,    currency: 'CNY' },
+  MY:  { min: 3000,  max: 12000,    currency: 'MYR' },
+  ID:  { min: 5_000_000, max: 35_000_000, currency: 'IDR' }, // Indonesia (in IDR)
+  VN:  { min: 10_000_000, max: 60_000_000, currency: 'VND' },
+  TH:  { min: 18000, max: 80000,    currency: 'THB' },
+  PH:  { min: 20000, max: 90000,    currency: 'PHP' },
 };
+
+const FIRST_ID = ['Budi','Siti','Andi','Dewi','Eko','Rina','Joko','Putri','Agus','Sari'];
+const LAST_ID  = ['Setiawan','Wijaya','Pratama','Sari','Lestari','Hidayat','Saputra','Nugraha'];
+const FIRST_VN = ['Minh','Linh','Hà','Tuấn','Phương','Quang','Trang','Hùng','Anh','Thảo'];
+const LAST_VN  = ['Nguyễn','Trần','Lê','Phạm','Hoàng','Huỳnh','Vũ','Đặng'];
+const FIRST_TH = ['Somchai','Suda','Niran','Pim','Anan','Wanida','Chai','Mali'];
+const LAST_TH  = ['Saetang','Boonmee','Charoen','Wong','Suk','Phon'];
+const FIRST_PH = ['Juan','Maria','Jose','Ana','Pedro','Luz','Andres','Liza'];
+const LAST_PH  = ['Santos','Reyes','Cruz','Bautista','Mendoza','Garcia','Dela Cruz','Rivera'];
 
 function buildEmployee(rand, tenant, idx) {
   const pick = pickFn(rand);
@@ -103,10 +176,20 @@ function buildEmployee(rand, tenant, idx) {
     first = pick(FIRST_CN); last = pick(LAST_CN);
   } else if (tenant.region === 'MY' && rand() < 0.5) {
     first = pick(FIRST_MY); last = pick(LAST_MY);
+  } else if (tenant.region === 'ID') {
+    first = pick(FIRST_ID); last = pick(LAST_ID);
+  } else if (tenant.region === 'VN') {
+    first = pick(FIRST_VN); last = pick(LAST_VN);
+  } else if (tenant.region === 'TH') {
+    first = pick(FIRST_TH); last = pick(LAST_TH);
+  } else if (tenant.region === 'PH') {
+    first = pick(FIRST_PH); last = pick(LAST_PH);
   } else {
     first = pick(FIRST); last = pick(LAST);
   }
-  const fullName = tenant.region === 'CN' ? `${last}${first}` : `${first} ${last}`;
+  const fullName = tenant.region === 'CN' ? `${last}${first}`
+                 : tenant.region === 'VN' ? `${last} ${first}`
+                 : `${first} ${last}`;
   const dept = pick(DEPARTMENTS);
   const position = pick(POSITIONS[dept]);
   const employeeId = `${tenant.region}-${String(idx + 1).padStart(4, '0')}`;
@@ -119,13 +202,14 @@ function buildEmployee(rand, tenant, idx) {
   const ageDays = Math.floor((22 + rand() * 33) * 365);
   const birthDate = new Date(Date.now() - ageDays * 86400_000).toISOString().slice(0, 10);
   // emails — strip Chinese & spaces
-  const emailLocal = tenant.region === 'CN'
+  const emailLocal = (tenant.region === 'CN' || tenant.region === 'VN' || tenant.region === 'TH')
     ? `user${idx + 1}`
     : `${first}.${last}`.toLowerCase().replace(/[^a-z.]/g, '');
-  const domain = tenant.region === 'SG' ? 'acme.sg'
-                : tenant.region === 'CN' ? 'bluesky.cn'
-                : 'megamart.my';
-  const email = `${emailLocal}@${domain}`;
+  const domainMap = {
+    SG: 'acme.sg', CN: 'bluesky.cn', MY: 'megamart.my',
+    ID: 'nusantara.id', VN: 'saigontech.vn', TH: 'bkkco.th', PH: 'manilabpo.ph',
+  };
+  const email = `${emailLocal}@${domainMap[tenant.region] || 'company.com'}`;
 
   return {
     id: `${tenant.id}-emp-${idx + 1}`,
@@ -137,7 +221,12 @@ function buildEmployee(rand, tenant, idx) {
     email,
     phone: tenant.region === 'SG' ? `+65 8${Math.floor(rand()*9000+1000)}${Math.floor(rand()*9000+1000)}`.slice(0,12)
          : tenant.region === 'CN' ? `+86 1${3 + Math.floor(rand()*7)}${Math.floor(rand()*900000000+100000000)}`
-         : `+60 1${Math.floor(rand()*8+1)}${Math.floor(rand()*9000000+1000000)}`,
+         : tenant.region === 'MY' ? `+60 1${Math.floor(rand()*8+1)}${Math.floor(rand()*9000000+1000000)}`
+         : tenant.region === 'ID' ? `+62 8${Math.floor(rand()*900000000+100000000)}`
+         : tenant.region === 'VN' ? `+84 9${Math.floor(rand()*8+1)}${Math.floor(rand()*9000000+1000000)}`
+         : tenant.region === 'TH' ? `+66 8${Math.floor(rand()*9000000+1000000)}`
+         : tenant.region === 'PH' ? `+63 9${Math.floor(rand()*900000000+100000000)}`
+         : '',
     department: dept,
     position,
     employmentType: rand() < 0.1 ? 'Contract' : 'Full-time',
@@ -149,7 +238,16 @@ function buildEmployee(rand, tenant, idx) {
     currency: band.currency,
     bankAccount: `****${Math.floor(rand()*9000+1000)}`,
     nationalId: `****${Math.floor(rand()*900+100)}${tenant.region === 'SG' ? 'X' : ''}`,
-    address: tenant.region === 'CN' ? '上海市浦东新区张江高科技园区' : tenant.region === 'MY' ? 'Kuala Lumpur, Malaysia' : 'Singapore',
+    address: {
+      SG: 'Singapore', CN: '上海市浦东新区张江高科技园区', MY: 'Kuala Lumpur, Malaysia',
+      ID: 'Jakarta, Indonesia', VN: 'Ho Chi Minh City, Vietnam', TH: 'Bangkok, Thailand',
+      PH: 'Manila, Philippines',
+    }[tenant.region] || '—',
+    religion: tenant.region === 'ID' ? (rand() < 0.85 ? 'Islam' : (rand() < 0.5 ? 'Kristen' : 'Hindu'))
+           : tenant.region === 'MY' ? (rand() < 0.65 ? 'Islam' : (rand() < 0.5 ? 'Buddha' : 'Hindu'))
+           : tenant.region === 'TH' ? 'Buddha'
+           : tenant.region === 'PH' ? 'Catholic'
+           : null,
     avatar: null,
     leaveBalance: {
       annual: 14 - Math.floor(rand() * 6),
@@ -437,6 +535,10 @@ export function buildSeed() {
       { id: 'em-1', email: 'employee@acme.sg',  name: 'Eric Employee',role: 'employee',    tenantId: 'tnt-acme-sg' },
       { id: 'hr-2', email: 'hr@bluesky.cn',     name: '王小华',        role: 'hr_admin',    tenantId: 'tnt-bluesky-cn' },
       { id: 'em-2', email: 'employee@bluesky.cn', name: '李小明',      role: 'employee',    tenantId: 'tnt-bluesky-cn' },
+      { id: 'hr-3', email: 'hr@nusantara.id',   name: 'Dewi Setiawan',role: 'hr_admin',    tenantId: 'tnt-nusa-id' },
+      { id: 'hr-4', email: 'hr@saigontech.vn',  name: 'Trần Minh',    role: 'hr_admin',    tenantId: 'tnt-saigon-vn' },
+      { id: 'hr-5', email: 'hr@bkkco.th',       name: 'Somchai Wong', role: 'hr_admin',    tenantId: 'tnt-bangkok-th' },
+      { id: 'hr-6', email: 'hr@manilabpo.ph',   name: 'Maria Santos', role: 'hr_admin',    tenantId: 'tnt-manila-ph' },
     ],
   };
 }

@@ -72,7 +72,13 @@
     "employee": "员工"
   },
   "nav": {
+    "workspace": "工作台",
     "dashboard": "仪表盘",
+    "im": "消息",
+    "workflow": "流程中心",
+    "departments": "组织架构",
+    "announcements": "公司公告",
+    "notifications": "通知中心",
     "employees": "员工",
     "attendance": "考勤",
     "leave": "假期",

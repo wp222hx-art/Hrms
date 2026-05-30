@@ -14,6 +14,16 @@ import Payroll from './pages/payroll/Payroll';
 import SelfService from './pages/self/SelfService';
 import AdminConsole from './pages/admin/AdminConsole';
 
+// Enterprise platform (Feishu/DingTalk-style)
+import Workspace from './pages/workspace/Workspace';
+import IM from './pages/im/IM';
+import DepartmentTree from './pages/departments/DepartmentTree';
+import WorkflowCenter from './pages/workflow/WorkflowCenter';
+import WorkflowForm from './pages/workflow/WorkflowForm';
+import WorkflowDetail from './pages/workflow/WorkflowDetail';
+import Announcements from './pages/announcements/Announcements';
+import NotificationCenter from './pages/notifications/NotificationCenter';
+
 // Funmode (game-style UI)
 import FunShell from './pages/funmode/FunShell';
 import Lobby from './pages/funmode/Lobby';
@@ -39,7 +49,7 @@ function Protected({ children, allow }) {
   }
   if (!session) return <Navigate to="/login" replace />;
   if (allow && !allow.includes(session.role)) {
-    return <Navigate to={session.role === 'super_admin' ? '/admin' : '/dashboard'} replace />;
+    return <Navigate to={session.role === 'super_admin' ? '/admin' : '/workspace'} replace />;
   }
   return children;
 }
@@ -48,7 +58,7 @@ function RootRedirect() {
   const { session, bootLoading } = useApp();
   if (bootLoading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading…</div>;
   if (!session) return <Navigate to="/login" replace />;
-  return <Navigate to={session.role === 'super_admin' ? '/admin' : '/dashboard'} replace />;
+  return <Navigate to={session.role === 'super_admin' ? '/admin' : '/workspace'} replace />;
 }
 
 export default function App() {
@@ -60,6 +70,18 @@ export default function App() {
 
         <Route element={<Protected><AppShell /></Protected>}>
           <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* Enterprise platform — Feishu/DingTalk-style */}
+          <Route path="/workspace"          element={<Workspace />} />
+          <Route path="/im"                 element={<IM />} />
+          <Route path="/departments"        element={<DepartmentTree />} />
+          <Route path="/workflow"           element={<WorkflowCenter />} />
+          <Route path="/workflow/new/:templateId" element={<WorkflowForm />} />
+          <Route path="/workflow/:id"       element={<WorkflowDetail />} />
+          <Route path="/announcements"      element={<Announcements />} />
+          <Route path="/notifications"      element={<NotificationCenter />} />
+          {/* Approval Bot links use /approval/:id — alias to /workflow/:id */}
+          <Route path="/approval/:id"       element={<WorkflowDetail />} />
           <Route path="/employees" element={
             <Protected allow={['hr_admin', 'manager']}><EmployeeList /></Protected>
           } />

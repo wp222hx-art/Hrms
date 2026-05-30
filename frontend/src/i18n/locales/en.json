@@ -72,7 +72,13 @@
     "employee": "Employee"
   },
   "nav": {
+    "workspace": "Workspace",
     "dashboard": "Dashboard",
+    "im": "Messages",
+    "workflow": "Workflows",
+    "departments": "Organization",
+    "announcements": "Announcements",
+    "notifications": "Notifications",
     "employees": "Employees",
     "attendance": "Attendance",
     "leave": "Leave",
