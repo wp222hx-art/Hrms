@@ -5,12 +5,15 @@ import './funmode.css';
 import { UI_ICONS } from './assets';
 
 const TABS = [
-  { path: '/fun',        icon: UI_ICONS.tab_lobby, label: 'LOBBY' },
-  { path: '/fun/quest',  icon: UI_ICONS.tab_quest, label: 'QUEST' },
-  { path: '/fun/cards',  icon: UI_ICONS.tab_cards, label: 'CARDS' },
-  { path: '/fun/squad',  icon: UI_ICONS.tab_squad, label: 'SQUAD' },
-  { path: '/fun/loot',   icon: UI_ICONS.tab_loot,  label: 'LOOT'  },
-  { path: '/fun/rank',   icon: UI_ICONS.tab_rank,  label: 'RANK'  },
+  { path: '/fun',          icon: UI_ICONS.tab_lobby,    label: 'LOBBY' },
+  { path: '/fun/quest',    icon: UI_ICONS.tab_quest,    label: 'QUEST' },
+  { path: '/fun/academy',  icon: UI_ICONS.ic_training,  label: 'STUDY' },
+  { path: '/fun/expense',  icon: UI_ICONS.ic_expense,   label: 'BILL'  },
+  { path: '/fun/welfare',  icon: UI_ICONS.ic_welfare,   label: 'PERK'  },
+  { path: '/fun/cards',    icon: UI_ICONS.tab_cards,    label: 'CARDS' },
+  { path: '/fun/squad',    icon: UI_ICONS.tab_squad,    label: 'SQUAD' },
+  { path: '/fun/loot',     icon: UI_ICONS.tab_loot,     label: 'LOOT'  },
+  { path: '/fun/rank',     icon: UI_ICONS.tab_rank,     label: 'RANK'  },
 ];
 
 export default function FunShell() {
@@ -32,7 +35,7 @@ export default function FunShell() {
       </div>
 
       <nav className="fm-tabbar">
-        <div className="fm-tabbar__inner">
+        <div className="fm-tabbar__inner fm-tabbar__inner--ext">
           {TABS.map((t) => {
             const active = loc.pathname === t.path;
             return (

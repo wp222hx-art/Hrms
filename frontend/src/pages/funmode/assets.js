@@ -18,7 +18,7 @@ export const CLASS_CARDS = {
   adventurer: `${root}/cards/classes/adventurer.webp`,
 };
 
-/* Daily reward / drop cards (8) */
+/* Daily reward / drop cards + life-event cards (12) */
 export const REWARD_CARDS = {
   combo:       { img: `${root}/cards/rewards/combo.webp`,       name: '连击大师', en: 'Combo Master',       rarity: 'epic',      icon: '⚡', desc: '连续打卡达成 ≥3 天' },
   early_bird:  { img: `${root}/cards/rewards/early_bird.webp`,  name: '早起之力', en: 'Early Bird',          rarity: 'uncommon',  icon: '🌅', desc: '9:00 前完成打卡' },
@@ -28,6 +28,11 @@ export const REWARD_CARDS = {
   inspiration: { img: `${root}/cards/rewards/inspiration.webp`, name: '灵感时刻', en: 'Inspiration Moment',  rarity: 'rare',      icon: '💡', desc: '完成创新型任务' },
   teamwork:    { img: `${root}/cards/rewards/teamwork.webp`,    name: '协作之心', en: 'Teamwork Heart',      rarity: 'uncommon',  icon: '🤝', desc: '团队任务参与者' },
   champion:    { img: `${root}/cards/rewards/champion.webp`,    name: '周冠军',   en: 'Weekly Champion',     rarity: 'mythic',    icon: '🏆', desc: '周战力排名 #1' },
+  // New life-event cards
+  onboarding:  { img: `${root}/cards/rewards/onboarding.webp`,  name: '入职证书', en: 'Onboarding Cert',     rarity: 'rare',      icon: '🎓', desc: '完成入职手册学习' },
+  exam:        { img: `${root}/cards/rewards/exam.webp`,        name: '考试通关', en: 'Exam Master',         rarity: 'epic',      icon: '📝', desc: '通过企业入职考试' },
+  birthday:    { img: `${root}/cards/rewards/birthday.webp`,    name: '生日庆典', en: 'Birthday Bash',       rarity: 'epic',      icon: '🎂', desc: '生日当月限定' },
+  festival:    { img: `${root}/cards/rewards/festival.webp`,    name: '节日福利', en: 'Festival Bonus',      rarity: 'legendary', icon: '🧧', desc: '节日福利发放' },
 };
 
 /* UI icons */
@@ -60,6 +65,11 @@ export const UI_ICONS = {
 
   onchain_seal: `${root}/cards/ui/onchain_seal.webp`,
   pack_bg:      `${root}/cards/ui/pack_bg.webp`,
+
+  ic_expense:  `${root}/cards/ui/ic_expense.webp`,
+  ic_training: `${root}/cards/ui/ic_training.webp`,
+  ic_welfare:  `${root}/cards/ui/ic_welfare.webp`,
+  ic_qr:       `${root}/cards/ui/ic_qr.webp`,
 };
 
 export const REWARD_KEYS = Object.keys(REWARD_CARDS);

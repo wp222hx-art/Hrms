@@ -22,6 +22,9 @@ import Squad from './pages/funmode/Squad';
 import Loot from './pages/funmode/Loot';
 import Rank from './pages/funmode/Rank';
 import Vault from './pages/funmode/Vault';
+import Expense from './pages/funmode/Expense';
+import Academy from './pages/funmode/Academy';
+import Welfare from './pages/funmode/Welfare';
 
 import './styles/tokens.css';
 import './styles/global.css';
@@ -77,12 +80,15 @@ export default function App() {
 
         {/* Funmode — game-style UI (mobile-optimized cyberpunk) */}
         <Route element={<Protected><FunShell /></Protected>}>
-          <Route path="/fun"        element={<Lobby />} />
-          <Route path="/fun/quest"  element={<Quest />} />
-          <Route path="/fun/cards"  element={<Vault />} />
-          <Route path="/fun/squad"  element={<Squad />} />
-          <Route path="/fun/loot"   element={<Loot />} />
-          <Route path="/fun/rank"   element={<Rank />} />
+          <Route path="/fun"          element={<Lobby />} />
+          <Route path="/fun/quest"    element={<Quest />} />
+          <Route path="/fun/academy"  element={<Academy />} />
+          <Route path="/fun/expense"  element={<Expense />} />
+          <Route path="/fun/welfare"  element={<Welfare />} />
+          <Route path="/fun/cards"    element={<Vault />} />
+          <Route path="/fun/squad"    element={<Squad />} />
+          <Route path="/fun/loot"     element={<Loot />} />
+          <Route path="/fun/rank"     element={<Rank />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
