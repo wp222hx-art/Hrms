@@ -109,3 +109,23 @@ export const regionMeta = ES.REGION_META;
 export const seaApi = {
   calcStatutory: (region, gross) => ES.calcStatutorySEA(region, gross),
 };
+
+/* Handbook (Employee Handbook / Knowledge Base) */
+export const handbookApi = {
+  categories: async (tid) => { await delay(); await ensureEnterpriseSeeded(tid); return ES.listHandbookCategories(tid); },
+  list:       async (tid, filter) => { await delay(); await ensureEnterpriseSeeded(tid); return ES.listHandbookArticles(tid, filter); },
+  get:        async (tid, id) => { await delay(80); return ES.getHandbookArticle(tid, id); },
+  markRead:   async (tid, id, eid) => { await delay(40); ES.markArticleRead(tid, id, eid); return true; },
+};
+
+/* Training (Courses + Lessons + Quizzes + Certificates) */
+export const trainingApi = {
+  courses:       async (tid, f) => { await delay(); await ensureEnterpriseSeeded(tid); return ES.listCourses(tid, f); },
+  course:        async (tid, id) => { await delay(80); return ES.getCourse(tid, id); },
+  myEnrollments: async (tid, eid) => { await delay(80); return ES.listMyEnrollments(tid, eid); },
+  enrollment:    async (tid, eid, cid) => { await delay(40); return ES.getEnrollment(tid, eid, cid); },
+  enroll:        async (tid, eid, cid) => { await delay(80); return ES.enrollCourse(tid, eid, cid); },
+  markLesson:    async (tid, eid, cid, lid) => { await delay(60); return ES.markLessonDone(tid, eid, cid, lid); },
+  submitQuiz:    async (tid, eid, cid, lid, answers) => { await delay(120); return ES.submitQuiz(tid, eid, cid, lid, answers); },
+  myCerts:       async (tid, eid) => { await delay(60); return ES.listMyCertificates(tid, eid); },
+};

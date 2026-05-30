@@ -5,6 +5,7 @@ import {
   FaCalendarAlt, FaReceipt, FaMoneyBillWave, FaCommentDots,
   FaBullhorn, FaBuilding, FaProjectDiagram, FaUserCircle, FaClock,
   FaBook, FaStar, FaThumbtack, FaChevronRight, FaGift, FaUserCheck,
+  FaGraduationCap,
 } from 'react-icons/fa';
 import { useApp } from '../../context/AppContext';
 import {
@@ -25,7 +26,8 @@ const APP_CATALOG = [
   { key: 'payslip',    icon: FaMoneyBillWave,   label: '工资条',      color: '#84cc16', to: '/self-service' },
   { key: 'directory',  icon: FaUserCircle,      label: '通讯录',      color: '#0ea5e9', to: '/employees' },
   { key: 'departments',icon: FaBuilding,        label: '组织架构',    color: '#7c4dff', to: '/departments' },
-  { key: 'handbook',   icon: FaBook,            label: '员工手册',    color: '#64748b', to: '/self-service' },
+  { key: 'handbook',   icon: FaBook,            label: '员工手册',    color: '#64748b', to: '/handbook' },
+  { key: 'training',   icon: FaGraduationCap,   label: '培训中心',    color: '#a855f7', to: '/training' },
 ];
 
 export default function Workspace() {

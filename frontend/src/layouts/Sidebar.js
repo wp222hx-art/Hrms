@@ -5,6 +5,7 @@ import {
   FaTachometerAlt, FaUsers, FaClock, FaCalendarAlt, FaReceipt,
   FaMoneyBillWave, FaUserCircle, FaCogs, FaShieldAlt, FaBuilding,
   FaTh, FaCommentDots, FaProjectDiagram, FaBullhorn, FaSitemap,
+  FaBook, FaGraduationCap,
 } from 'react-icons/fa';
 import { useApp } from '../context/AppContext';
 import './Sidebar.css';
@@ -20,6 +21,8 @@ const NAV_BY_ROLE = {
     { to: '/im',              key: 'nav.im',           icon: FaCommentDots },
     { to: '/workflow',        key: 'nav.workflow',     icon: FaProjectDiagram },
     { to: '/announcements',   key: 'nav.announcements',icon: FaBullhorn },
+    { to: '/handbook',        key: 'nav.handbook',     icon: FaBook },
+    { to: '/training',        key: 'nav.training',     icon: FaGraduationCap },
     { to: '/departments',     key: 'nav.departments',  icon: FaSitemap },
     { to: '/employees',       key: 'nav.employees',    icon: FaUsers },
     { to: '/attendance',      key: 'nav.attendance',   icon: FaClock },
@@ -34,6 +37,8 @@ const NAV_BY_ROLE = {
     { to: '/im',              key: 'nav.im',           icon: FaCommentDots },
     { to: '/workflow',        key: 'nav.workflow',     icon: FaProjectDiagram },
     { to: '/announcements',   key: 'nav.announcements',icon: FaBullhorn },
+    { to: '/handbook',        key: 'nav.handbook',     icon: FaBook },
+    { to: '/training',        key: 'nav.training',     icon: FaGraduationCap },
     { to: '/departments',     key: 'nav.departments',  icon: FaSitemap },
     { to: '/employees',       key: 'nav.employees',    icon: FaUsers },
     { to: '/leave',           key: 'nav.leave',        icon: FaCalendarAlt },
@@ -45,6 +50,8 @@ const NAV_BY_ROLE = {
     { to: '/im',              key: 'nav.im',           icon: FaCommentDots },
     { to: '/workflow',        key: 'nav.workflow',     icon: FaProjectDiagram },
     { to: '/announcements',   key: 'nav.announcements',icon: FaBullhorn },
+    { to: '/handbook',        key: 'nav.handbook',     icon: FaBook },
+    { to: '/training',        key: 'nav.training',     icon: FaGraduationCap },
     { to: '/attendance',      key: 'nav.myAttendance', icon: FaClock },
     { to: '/leave',           key: 'nav.myLeave',      icon: FaCalendarAlt },
     { to: '/expense',         key: 'nav.myExpense',    icon: FaReceipt },

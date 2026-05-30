@@ -23,6 +23,9 @@ import WorkflowForm from './pages/workflow/WorkflowForm';
 import WorkflowDetail from './pages/workflow/WorkflowDetail';
 import Announcements from './pages/announcements/Announcements';
 import NotificationCenter from './pages/notifications/NotificationCenter';
+import Handbook from './pages/handbook/Handbook';
+import Training from './pages/training/Training';
+import TrainingCourse from './pages/training/TrainingCourse';
 
 // Funmode (game-style UI)
 import FunShell from './pages/funmode/FunShell';
@@ -80,6 +83,9 @@ export default function App() {
           <Route path="/workflow/:id"       element={<WorkflowDetail />} />
           <Route path="/announcements"      element={<Announcements />} />
           <Route path="/notifications"      element={<NotificationCenter />} />
+          <Route path="/handbook"           element={<Handbook />} />
+          <Route path="/training"           element={<Training />} />
+          <Route path="/training/:courseId" element={<TrainingCourse />} />
           {/* Approval Bot links use /approval/:id — alias to /workflow/:id */}
           <Route path="/approval/:id"       element={<WorkflowDetail />} />
           <Route path="/employees" element={
