@@ -16,3 +16,6 @@ build/
 
 # OS
 .DS_Store
+
+# generated raw assets (large PNGs)
+frontend/scripts/raw3/

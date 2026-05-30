@@ -25,6 +25,9 @@ import Vault from './pages/funmode/Vault';
 import Expense from './pages/funmode/Expense';
 import Academy from './pages/funmode/Academy';
 import Welfare from './pages/funmode/Welfare';
+import SocialWall from './pages/funmode/SocialWall';
+import Mentor from './pages/funmode/Mentor';
+import Ops from './pages/funmode/Ops';
 
 import './styles/tokens.css';
 import './styles/global.css';
@@ -85,6 +88,9 @@ export default function App() {
           <Route path="/fun/academy"  element={<Academy />} />
           <Route path="/fun/expense"  element={<Expense />} />
           <Route path="/fun/welfare"  element={<Welfare />} />
+          <Route path="/fun/wall"     element={<SocialWall />} />
+          <Route path="/fun/mentor"   element={<Mentor />} />
+          <Route path="/fun/ops"      element={<Ops />} />
           <Route path="/fun/cards"    element={<Vault />} />
           <Route path="/fun/squad"    element={<Squad />} />
           <Route path="/fun/loot"     element={<Loot />} />

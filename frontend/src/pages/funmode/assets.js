@@ -33,6 +33,10 @@ export const REWARD_CARDS = {
   exam:        { img: `${root}/cards/rewards/exam.webp`,        name: '考试通关', en: 'Exam Master',         rarity: 'epic',      icon: '📝', desc: '通过企业入职考试' },
   birthday:    { img: `${root}/cards/rewards/birthday.webp`,    name: '生日庆典', en: 'Birthday Bash',       rarity: 'epic',      icon: '🎂', desc: '生日当月限定' },
   festival:    { img: `${root}/cards/rewards/festival.webp`,    name: '节日福利', en: 'Festival Bonus',      rarity: 'legendary', icon: '🧧', desc: '节日福利发放' },
+  // OPS / Social / Mentor extension cards
+  ops:         { img: `${root}/cards/rewards/ops.webp`,         name: '指挥官',   en: 'Commander',           rarity: 'legendary', icon: '🛡️', desc: 'HR 决策与运营成就' },
+  wall:        { img: `${root}/cards/rewards/wall.webp`,        name: '人气之星', en: 'Social Star',         rarity: 'epic',      icon: '💬', desc: '收获 10+ 点赞或喊话' },
+  mentor:      { img: `${root}/cards/rewards/mentor.webp`,      name: '师承传承', en: 'Mentor Bond',         rarity: 'legendary', icon: '🤝', desc: '完成师徒结对与出师' },
 };
 
 /* UI icons */
@@ -70,6 +74,11 @@ export const UI_ICONS = {
   ic_training: `${root}/cards/ui/ic_training.webp`,
   ic_welfare:  `${root}/cards/ui/ic_welfare.webp`,
   ic_qr:       `${root}/cards/ui/ic_qr.webp`,
+
+  ic_ops:      `${root}/cards/ui/ic_ops.webp`,
+  ic_wall:     `${root}/cards/ui/ic_wall.webp`,
+  ic_pair:     `${root}/cards/ui/ic_pair.webp`,
+  ic_event:    `${root}/cards/ui/ic_event.webp`,
 };
 
 export const REWARD_KEYS = Object.keys(REWARD_CARDS);

@@ -26,10 +26,21 @@ function bucket(tenantId) {
       examResults: {},        // { employeeId: [{ examId, score, passedAt }] }
       welfareClaims: [],
       pushHistory: [],        // training push reminders
+      posts: [],              // social wall posts
+      mentorships: [],        // mentor-apprentice pairs
+      events: [],             // OPS-launched campaigns/festivals
+      assignments: [],        // OPS-pushed training assignments
     };
     save(all);
   }
-  return all[tenantId];
+  // Backfill any missing keys on legacy buckets
+  const b = all[tenantId];
+  if (!b.posts)       b.posts = [];
+  if (!b.mentorships) b.mentorships = [];
+  if (!b.events)      b.events = [];
+  if (!b.assignments) b.assignments = [];
+  save(all);
+  return b;
 }
 function update(tenantId, mutator) {
   const all = load();
@@ -350,3 +361,271 @@ export function detectWelfareTriggers(employee) {
 
   return triggers;
 }
+
+/* ============================================================
+ *  SOCIAL WALL (posts / likes / cheers)
+ * ============================================================ */
+export const POST_KINDS = [
+  { id: 'cheer',    icon: '📣', label: '喊话',   color: '#ff2ec8' },
+  { id: 'birthday', icon: '🎂', label: '生日祝福', color: '#ffb74d' },
+  { id: 'thanks',   icon: '🙏', label: '感谢',   color: '#26c6da' },
+  { id: 'gossip',   icon: '🍵', label: '吐槽',   color: '#ab47bc' },
+  { id: 'praise',   icon: '🏆', label: '表扬',   color: '#ffd54f' },
+  { id: 'event',    icon: '🎉', label: '动态',   color: '#42a5f5' },
+];
+
+export function listPosts(tenantId, { limit = 50 } = {}) {
+  const b = bucket(tenantId);
+  return [...b.posts]
+    .sort((a, b2) => new Date(b2.createdAt) - new Date(a.createdAt))
+    .slice(0, limit);
+}
+
+export function addPost(tenantId, payload) {
+  const post = {
+    id: `post-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+    tenantId,
+    kind: 'cheer',
+    text: '',
+    likes: [],
+    comments: [],
+    pinned: false,
+    createdAt: new Date().toISOString(),
+    ...payload,
+  };
+  update(tenantId, (b) => { b.posts.unshift(post); });
+  return post;
+}
+
+export function likePost(tenantId, postId, employeeId) {
+  let after = null;
+  update(tenantId, (b) => {
+    const p = b.posts.find((x) => x.id === postId);
+    if (!p) return;
+    if (!p.likes) p.likes = [];
+    const idx = p.likes.indexOf(employeeId);
+    if (idx >= 0) p.likes.splice(idx, 1);
+    else p.likes.push(employeeId);
+    after = p;
+  });
+  return after;
+}
+
+export function commentPost(tenantId, postId, comment) {
+  update(tenantId, (b) => {
+    const p = b.posts.find((x) => x.id === postId);
+    if (!p) return;
+    if (!p.comments) p.comments = [];
+    p.comments.push({
+      id: `cm-${Date.now()}`,
+      ...comment,
+      at: new Date().toISOString(),
+    });
+  });
+}
+
+export function pinPost(tenantId, postId, pinned) {
+  update(tenantId, (b) => {
+    const p = b.posts.find((x) => x.id === postId);
+    if (p) p.pinned = !!pinned;
+  });
+}
+
+export function removePost(tenantId, postId) {
+  update(tenantId, (b) => {
+    b.posts = b.posts.filter((p) => p.id !== postId);
+  });
+}
+
+/**
+ * Total likes received by the employee on his/her own posts.
+ */
+export function popularityOf(tenantId, employeeId) {
+  const b = bucket(tenantId);
+  let total = 0;
+  let posts = 0;
+  b.posts.forEach((p) => {
+    if (p.authorId === employeeId) {
+      total += (p.likes?.length || 0);
+      posts += 1;
+    }
+  });
+  return { likes: total, posts };
+}
+
+/* ============================================================
+ *  MENTOR / APPRENTICE PAIRS
+ * ============================================================ */
+export const MENTOR_SKILLS = [
+  '业务流程', '系统使用', '客户沟通', '团队协作',
+  '产品知识', '行业经验', '代码规范', '汇报演讲',
+];
+
+export function listMentorships(tenantId, { employeeId } = {}) {
+  const b = bucket(tenantId);
+  if (!employeeId) return b.mentorships;
+  return b.mentorships.filter(
+    (m) => m.mentorId === employeeId || m.apprenticeId === employeeId,
+  );
+}
+
+export function createMentorship(tenantId, { mentorId, mentorName, apprenticeId, apprenticeName, skills = [], goal = '' }) {
+  const existing = bucket(tenantId).mentorships.find(
+    (m) => m.mentorId === mentorId && m.apprenticeId === apprenticeId && m.status === 'active',
+  );
+  if (existing) return { existing: true, pair: existing };
+  const pair = {
+    id: `mt-${Date.now()}`,
+    tenantId,
+    mentorId,
+    mentorName,
+    apprenticeId,
+    apprenticeName,
+    skills,
+    goal,
+    status: 'active',
+    progress: 0,
+    milestones: [],
+    createdAt: new Date().toISOString(),
+  };
+  update(tenantId, (b) => { b.mentorships.unshift(pair); });
+  return { existing: false, pair };
+}
+
+export function logMentorMilestone(tenantId, pairId, milestone) {
+  let updated = null;
+  update(tenantId, (b) => {
+    const m = b.mentorships.find((x) => x.id === pairId);
+    if (!m) return;
+    if (!m.milestones) m.milestones = [];
+    m.milestones.push({
+      id: `ms-${Date.now()}`,
+      text: milestone.text || '',
+      at: new Date().toISOString(),
+      by: milestone.by || 'mentor',
+    });
+    // 5 milestones = graduation
+    m.progress = Math.min(100, m.milestones.length * 20);
+    if (m.progress >= 100 && m.status === 'active') {
+      m.status = 'graduated';
+      m.graduatedAt = new Date().toISOString();
+    }
+    updated = m;
+  });
+  return updated;
+}
+
+export function graduateMentorship(tenantId, pairId) {
+  let updated = null;
+  update(tenantId, (b) => {
+    const m = b.mentorships.find((x) => x.id === pairId);
+    if (m && m.status === 'active') {
+      m.status = 'graduated';
+      m.progress = 100;
+      m.graduatedAt = new Date().toISOString();
+      updated = m;
+    }
+  });
+  return updated;
+}
+
+/* ============================================================
+ *  OPS EVENTS / CAMPAIGNS (HR-launched)
+ * ============================================================ */
+export const EVENT_TEMPLATES = [
+  { id: 'spring',     icon: '🧧', name: '春节红包派发',  rewardCard: 'festival', defaultValue: '¥2000 红包' },
+  { id: 'mid',        icon: '🥮', name: '中秋月饼券',    rewardCard: 'festival', defaultValue: '¥800 月饼券' },
+  { id: 'birthday',   icon: '🎂', name: '本月生日会',    rewardCard: 'birthday', defaultValue: '¥500 + 半天假' },
+  { id: 'anniv',      icon: '🎉', name: '公司周年庆',    rewardCard: 'festival', defaultValue: '¥1000 周年礼包' },
+  { id: 'champion',   icon: '🏆', name: '季度战神评选',  rewardCard: 'champion', defaultValue: '神话级冠军卡' },
+  { id: 'innovation', icon: '💡', name: '创新挑战赛',    rewardCard: 'inspiration', defaultValue: '¥2000 + 灵感卡' },
+];
+
+export function listEvents(tenantId) {
+  const b = bucket(tenantId);
+  return [...b.events].sort(
+    (a, b2) => new Date(b2.createdAt) - new Date(a.createdAt),
+  );
+}
+
+export function createEvent(tenantId, payload) {
+  const ev = {
+    id: `evt-${Date.now()}`,
+    tenantId,
+    name: '',
+    description: '',
+    rewardCard: 'festival',
+    value: '',
+    status: 'active',
+    participants: [], // employeeIds who claimed
+    createdAt: new Date().toISOString(),
+    ...payload,
+  };
+  update(tenantId, (b) => { b.events.unshift(ev); });
+  return ev;
+}
+
+export function joinEvent(tenantId, eventId, employeeId) {
+  let result = null;
+  update(tenantId, (b) => {
+    const ev = b.events.find((x) => x.id === eventId);
+    if (!ev) return;
+    if (ev.status !== 'active') { result = { error: 'closed' }; return; }
+    if (ev.participants.includes(employeeId)) { result = { error: 'joined' }; return; }
+    ev.participants.push(employeeId);
+    result = { ok: true, event: ev };
+  });
+  return result;
+}
+
+export function closeEvent(tenantId, eventId) {
+  update(tenantId, (b) => {
+    const ev = b.events.find((x) => x.id === eventId);
+    if (ev) ev.status = 'closed';
+  });
+}
+
+/* ============================================================
+ *  OPS TRAINING ASSIGNMENTS
+ * ============================================================ */
+export function listAssignments(tenantId, { employeeId } = {}) {
+  const b = bucket(tenantId);
+  if (!employeeId) return b.assignments;
+  return b.assignments.filter(
+    (a) => a.targets === 'all' || (Array.isArray(a.targetIds) && a.targetIds.includes(employeeId)),
+  );
+}
+
+export function createAssignment(tenantId, payload) {
+  const a = {
+    id: `asn-${Date.now()}`,
+    tenantId,
+    courseId: '',
+    targets: 'all',       // 'all' | 'select'
+    targetIds: [],
+    dueDate: null,
+    createdAt: new Date().toISOString(),
+    ...payload,
+  };
+  update(tenantId, (b) => { b.assignments.unshift(a); });
+  return a;
+}
+
+/* ============================================================
+ *  OPS-side aggregated stats (for HR console)
+ * ============================================================ */
+export function opsStats(tenantId) {
+  const b = bucket(tenantId);
+  return {
+    receiptsPending: b.receipts.filter((r) => r.status === 'pending').length,
+    receiptsTotal:   b.receipts.length,
+    welfareGiven:    b.welfareClaims.length,
+    activeEvents:    b.events.filter((e) => e.status === 'active').length,
+    totalEvents:     b.events.length,
+    posts:           b.posts.length,
+    mentorships:     b.mentorships.filter((m) => m.status === 'active').length,
+    graduations:     b.mentorships.filter((m) => m.status === 'graduated').length,
+    assignments:     b.assignments.length,
+  };
+}
+

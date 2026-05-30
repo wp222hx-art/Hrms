@@ -10,6 +10,9 @@ const TABS = [
   { path: '/fun/academy',  icon: UI_ICONS.ic_training,  label: 'STUDY' },
   { path: '/fun/expense',  icon: UI_ICONS.ic_expense,   label: 'BILL'  },
   { path: '/fun/welfare',  icon: UI_ICONS.ic_welfare,   label: 'PERK'  },
+  { path: '/fun/wall',     icon: UI_ICONS.ic_wall,      label: 'WALL'  },
+  { path: '/fun/mentor',   icon: UI_ICONS.ic_pair,      label: 'PAIR'  },
+  { path: '/fun/ops',      icon: UI_ICONS.ic_ops,       label: 'OPS'   },
   { path: '/fun/cards',    icon: UI_ICONS.tab_cards,    label: 'CARDS' },
   { path: '/fun/squad',    icon: UI_ICONS.tab_squad,    label: 'SQUAD' },
   { path: '/fun/loot',     icon: UI_ICONS.tab_loot,     label: 'LOOT'  },
@@ -34,8 +37,8 @@ export default function FunShell() {
         <Outlet />
       </div>
 
-      <nav className="fm-tabbar">
-        <div className="fm-tabbar__inner fm-tabbar__inner--ext">
+      <nav className="fm-tabbar fm-tabbar--scroll">
+        <div className="fm-tabbar__inner fm-tabbar__inner--scroll">
           {TABS.map((t) => {
             const active = loc.pathname === t.path;
             return (
