@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { employeeApi, attendanceApi } from '../../mock/api';
 import { comboOf, comboMultiplier, classOf } from './engine';
+import { mintDailyReward, dailyRewardMintedToday } from './ledger';
+import { UI_ICONS } from './assets';
+import MintModal from './MintModal';
 
 export default function Quest() {
   const { session, tenant } = useApp();
@@ -10,6 +13,7 @@ export default function Quest() {
   const [now, setNow] = useState(new Date());
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState(null);
+  const [mint, setMint] = useState(null); // { token } when modal is open
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -36,7 +40,7 @@ export default function Quest() {
 
   const showToast = (msg) => {
     setToast(msg);
-    setTimeout(() => setToast(null), 1600);
+    setTimeout(() => setToast(null), 1800);
   };
 
   const today = now.toISOString().slice(0, 10);
@@ -54,8 +58,15 @@ export default function Quest() {
     setBusy(false);
     const newCombo = comboOf(me, fresh);
     const newMul = comboMultiplier(newCombo);
-    showToast(`⚡ 上班副本 +${Math.round(50 * newMul.mult)} EXP · ${newMul.label}`);
+    // Mint a daily reward card on-chain (or fetch existing)
+    const { token, isNew } = mintDailyReward(tenant.id, me, fresh, 'in');
+    if (isNew) {
+      setMint({ token });
+    } else {
+      showToast(`⚡ 上班副本 +${Math.round(50 * newMul.mult)} EXP · 今日卡牌已领取`);
+    }
   };
+
   const handleClockOut = async () => {
     if (!me || busy) return;
     setBusy(true);
@@ -63,7 +74,12 @@ export default function Quest() {
     const fresh = await attendanceApi.list(tenant.id);
     setAttendance(fresh);
     setBusy(false);
-    showToast(`🌙 下班通关 +${Math.round(50 * mul.mult)} EXP · 战斗结算`);
+    const { token, isNew } = mintDailyReward(tenant.id, me, fresh, 'out');
+    if (isNew) {
+      setMint({ token });
+    } else {
+      showToast(`🌙 下班通关 +${Math.round(50 * mul.mult)} EXP`);
+    }
   };
 
   if (!me) {
@@ -83,6 +99,8 @@ export default function Quest() {
   const canClockIn = !todayAtt;
   const canClockOut = todayAtt && !todayAtt.checkOut;
   const done = todayAtt && todayAtt.checkOut;
+  const cardInDone = !!dailyRewardMintedToday(tenant.id, me.id, 'in');
+  const cardOutDone = !!dailyRewardMintedToday(tenant.id, me.id, 'out');
 
   // Last 14 days streak heatmap
   const heat = [];
@@ -97,6 +115,7 @@ export default function Quest() {
   return (
     <>
       {toast && <div className="fm-toast">{toast}</div>}
+      <MintModal open={!!mint} token={mint?.token} onClose={() => setMint(null)} />
 
       {/* Clock + Combo */}
       <div className="fm-clock">
@@ -112,14 +131,32 @@ export default function Quest() {
           </div>
         </div>
 
+        {/* Daily card drop status */}
+        <div className="fm-droprow">
+          <div className={`fm-drop ${cardInDone ? 'is-done' : ''}`}>
+            <img src={UI_ICONS.act_clock} alt="" />
+            <div>
+              <div className="fm-drop__lbl">早班卡牌</div>
+              <div className="fm-drop__sub">{cardInDone ? '✓ 已铸造' : '打卡解锁'}</div>
+            </div>
+          </div>
+          <div className={`fm-drop ${cardOutDone ? 'is-done' : ''}`}>
+            <img src={UI_ICONS.act_combo} alt="" />
+            <div>
+              <div className="fm-drop__lbl">晚班卡牌</div>
+              <div className="fm-drop__sub">{cardOutDone ? '✓ 已铸造' : '下班解锁'}</div>
+            </div>
+          </div>
+        </div>
+
         {canClockIn && (
           <button className="fm-punch" onClick={handleClockIn} disabled={busy}>
-            {busy ? '…' : '⚔️ 进入副本 · 上班打卡'}
+            {busy ? '⛓️ 铸造中…' : '⚔️ 进入副本 · 上班打卡 · 铸造卡牌'}
           </button>
         )}
         {canClockOut && (
           <button className="fm-punch fm-punch--out" onClick={handleClockOut} disabled={busy}>
-            {busy ? '…' : '🌙 通关结算 · 下班打卡'}
+            {busy ? '⛓️ 铸造中…' : '🌙 通关结算 · 下班打卡 · 铸造卡牌'}
           </button>
         )}
         {done && (
@@ -192,14 +229,16 @@ export default function Quest() {
 
       <div className="fm-section">
         <div className="fm-section__head">
-          <div className="fm-section__title">⚔ 副本规则</div>
+          <div className="fm-section__title">⚔ 副本规则 · 链上铸造</div>
         </div>
         <div className="fm-radar-wrap" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
           <div style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-2)' }}>
+            • 每次打卡 = <strong style={{color: 'var(--neon-cyan)'}}>链上铸造一张卡牌</strong>（NFT）<br />
             • 9:05 前打卡 = <strong style={{color: 'var(--neon-green)'}}>满分通关</strong> +50 EXP<br />
-            • 9:05 后打卡 = <strong style={{color: 'var(--neon-orange)'}}>迟到惩罚</strong> +20 EXP，连击中断<br />
-            • 连续打卡触发 <strong style={{color: 'var(--neon-pink)'}}>Combo 倍率</strong>，最高 ×5<br />
-            • Combo ≥ 30 解锁 <strong style={{color: 'var(--neon-red)'}}>"月之守护者"</strong> 神话勋章
+            • 9:05 后打卡 = <strong style={{color: 'var(--neon-orange)'}}>迟到惩罚</strong>，连击中断<br />
+            • Combo ≥ 7 → <strong style={{color: 'var(--neon-purple)'}}>史诗卡掉率提升</strong><br />
+            • Combo ≥ 14 → 可掉落 <strong style={{color: 'var(--neon-red)'}}>"周冠军"</strong> 神话卡<br />
+            • 全部卡牌可在 <strong style={{color: 'var(--neon-pink)'}}>CARDS</strong> 标签查看链上证书
           </div>
         </div>
       </div>

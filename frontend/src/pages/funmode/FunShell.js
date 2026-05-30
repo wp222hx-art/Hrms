@@ -2,13 +2,15 @@ import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { FaSignOutAlt } from 'react-icons/fa';
 import './funmode.css';
+import { UI_ICONS } from './assets';
 
 const TABS = [
-  { path: '/fun',        icon: '🏠', label: 'LOBBY' },
-  { path: '/fun/quest',  icon: '⚔️', label: 'QUEST' },
-  { path: '/fun/squad',  icon: '👥', label: 'SQUAD' },
-  { path: '/fun/loot',   icon: '💰', label: 'LOOT' },
-  { path: '/fun/rank',   icon: '🏆', label: 'RANK' },
+  { path: '/fun',        icon: UI_ICONS.tab_lobby, label: 'LOBBY' },
+  { path: '/fun/quest',  icon: UI_ICONS.tab_quest, label: 'QUEST' },
+  { path: '/fun/cards',  icon: UI_ICONS.tab_cards, label: 'CARDS' },
+  { path: '/fun/squad',  icon: UI_ICONS.tab_squad, label: 'SQUAD' },
+  { path: '/fun/loot',   icon: UI_ICONS.tab_loot,  label: 'LOOT'  },
+  { path: '/fun/rank',   icon: UI_ICONS.tab_rank,  label: 'RANK'  },
 ];
 
 export default function FunShell() {
@@ -39,7 +41,7 @@ export default function FunShell() {
                 className={`fm-tab ${active ? 'is-active' : ''}`}
                 onClick={() => navigate(t.path)}
               >
-                <span className="fm-tab__icon">{t.icon}</span>
+                <img className="fm-tab__icon-img" src={t.icon} alt="" />
                 <span className="fm-tab__lbl">{t.label}</span>
               </button>
             );

@@ -21,6 +21,7 @@ import Quest from './pages/funmode/Quest';
 import Squad from './pages/funmode/Squad';
 import Loot from './pages/funmode/Loot';
 import Rank from './pages/funmode/Rank';
+import Vault from './pages/funmode/Vault';
 
 import './styles/tokens.css';
 import './styles/global.css';
@@ -78,6 +79,7 @@ export default function App() {
         <Route element={<Protected><FunShell /></Protected>}>
           <Route path="/fun"        element={<Lobby />} />
           <Route path="/fun/quest"  element={<Quest />} />
+          <Route path="/fun/cards"  element={<Vault />} />
           <Route path="/fun/squad"  element={<Squad />} />
           <Route path="/fun/loot"   element={<Loot />} />
           <Route path="/fun/rank"   element={<Rank />} />

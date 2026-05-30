@@ -7,7 +7,15 @@ import {
   classOf, levelStats, attributesOf, comboOf, comboMultiplier,
   titleOf, coinsOf, dailyQuests, badgesOf, RARITIES,
 } from './engine';
+import { ensureIdentityCard, tokensOf } from './ledger';
+import { UI_ICONS } from './assets';
 import Radar from './Radar';
+import IdentityCard from './IdentityCard';
+
+const ATTR_ICONS = {
+  STA: UI_ICONS.attr_sta, FOC: UI_ICONS.attr_foc, COL: UI_ICONS.attr_col,
+  CRE: UI_ICONS.attr_cre, END: UI_ICONS.attr_end, LRN: UI_ICONS.attr_lrn,
+};
 
 export default function Lobby() {
   const { session, tenant } = useApp();
@@ -18,8 +26,6 @@ export default function Lobby() {
     (async () => {
       if (!session || !tenant) return;
       const employees = await employeeApi.list(tenant.id);
-      // Find the "me" employee — for super_admin / hr_admin who don't map to an
-      // employee directly, default to the first one of the tenant.
       const me =
         employees.find((e) => e.email && e.email.toLowerCase() === (session.email || '').toLowerCase()) ||
         employees.find((e) => e.fullName === session.name) ||
@@ -34,8 +40,12 @@ export default function Lobby() {
       ]);
       const payslips = (payroll?.lines || []).map((l) => ({ ...l, employeeId: l.employeeId }));
 
+      // Auto-mint identity card if not yet minted
+      const identityToken = ensureIdentityCard(tenant.id, me);
+      const tokens = tokensOf(tenant.id, me.id);
+
       if (!cancelled) {
-        setData({ me, employees, attendance, leaves, expenses, payslips });
+        setData({ me, employees, attendance, leaves, expenses, payslips, identityToken, tokens });
       }
     })();
     return () => { cancelled = true; };
@@ -50,7 +60,7 @@ export default function Lobby() {
     );
   }
 
-  const { me, attendance, leaves, expenses, payslips } = data;
+  const { me, attendance, leaves, expenses, payslips, identityToken, tokens } = data;
   const cls = classOf(me.department);
   const lvl = levelStats(me, { attendance, leaves });
   const attrs = attributesOf(me);
@@ -60,37 +70,18 @@ export default function Lobby() {
   const coins = coinsOf(me, { payslips });
   const quests = dailyQuests(me, { attendance, leaves, expenses });
   const badges = badgesOf(me, { attendance, leaves, expenses, payslips });
+  const rewardCount = tokens.filter((t) => t.cardType === 'reward').length;
 
-  // HP = remaining annual leave ratio; MP = exp percent
   const hpMax = 100;
   const hp = Math.round(((me.leaveBalance?.annual || 0) / 14) * hpMax);
 
   return (
     <>
-      {/* HERO CARD */}
-      <div className="fm-hero">
-        <div className="fm-level">
-          <div className="fm-level__lbl">LVL</div>
-          <div className="fm-level__num">{lvl.level}</div>
-        </div>
+      {/* === HERO IDENTITY CARD (anime illustration) === */}
+      <IdentityCard employee={me} level={lvl.level} token={identityToken} />
 
-        <div className="fm-hero__top">
-          <div className="fm-avatar">{cls.emoji}</div>
-          <div className="fm-hero__info">
-            <h2 className="fm-hero__name">{me.fullName}</h2>
-            <span className="fm-hero__title" style={{ color: title.color }}>
-              {title.name}
-            </span>
-            <div className="fm-hero__class">
-              <strong style={{ color: cls.color }}>{cls.name}</strong>
-              <span style={{ margin: '0 6px' }}>·</span>
-              {me.department}
-              <span style={{ margin: '0 6px' }}>·</span>
-              {me.position || me.jobTitle || '—'}
-            </div>
-          </div>
-        </div>
-
+      {/* === STATS (EXP / HP / MP / Quick) === */}
+      <div className="fm-section fm-section--stats">
         <div className="fm-exp">
           <div className="fm-exp__label">
             <span>EXP</span>
@@ -118,49 +109,53 @@ export default function Lobby() {
 
         <div className="fm-quickstats">
           <div className="fm-quickstat">
-            <div className="fm-quickstat__icon">🔥</div>
+            <img className="fm-quickstat__img" src={UI_ICONS.act_combo} alt="" />
             <div className="fm-quickstat__val">{combo}</div>
             <div className="fm-quickstat__lbl">连击</div>
           </div>
           <div className="fm-quickstat">
-            <div className="fm-quickstat__icon">⚡</div>
+            <img className="fm-quickstat__img" src={UI_ICONS.act_exp} alt="" />
             <div className="fm-quickstat__val">x{comboMul.mult}</div>
             <div className="fm-quickstat__lbl">倍率</div>
           </div>
           <div className="fm-quickstat">
-            <div className="fm-quickstat__icon">🏅</div>
-            <div className="fm-quickstat__val">{badges.length}</div>
-            <div className="fm-quickstat__lbl">勋章</div>
+            <img className="fm-quickstat__img" src={UI_ICONS.tab_cards} alt="" />
+            <div className="fm-quickstat__val">{rewardCount}</div>
+            <div className="fm-quickstat__lbl">卡牌</div>
           </div>
           <div className="fm-quickstat">
-            <div className="fm-quickstat__icon">💎</div>
+            <img className="fm-quickstat__img" src={UI_ICONS.act_coin} alt="" />
             <div className="fm-quickstat__val">{coins.toLocaleString()}</div>
             <div className="fm-quickstat__lbl">金币</div>
           </div>
         </div>
       </div>
 
-      {/* ATTRIBUTES RADAR */}
+      {/* === ATTRIBUTES === */}
       <div className="fm-section">
         <div className="fm-section__head">
           <div className="fm-section__title">⚔ 角色属性</div>
+          <div className="fm-section__more">{title.name}</div>
         </div>
         <div className="fm-radar-wrap">
           <div className="fm-radar">
             <Radar attrs={attrs} size={150} color={cls.color} />
           </div>
           <div className="fm-attrs">
-            <div className="fm-attr"><span className="fm-attr__lbl">体力 STA</span><span className="fm-attr__val">{attrs.STA}</span></div>
-            <div className="fm-attr"><span className="fm-attr__lbl">专注 FOC</span><span className="fm-attr__val">{attrs.FOC}</span></div>
-            <div className="fm-attr"><span className="fm-attr__lbl">协作 COL</span><span className="fm-attr__val">{attrs.COL}</span></div>
-            <div className="fm-attr"><span className="fm-attr__lbl">创造 CRE</span><span className="fm-attr__val">{attrs.CRE}</span></div>
-            <div className="fm-attr"><span className="fm-attr__lbl">抗压 END</span><span className="fm-attr__val">{attrs.END}</span></div>
-            <div className="fm-attr"><span className="fm-attr__lbl">学习 LRN</span><span className="fm-attr__val">{attrs.LRN}</span></div>
+            {['STA','FOC','COL','CRE','END','LRN'].map((k) => (
+              <div className="fm-attr" key={k}>
+                <img className="fm-attr__icon" src={ATTR_ICONS[k]} alt="" />
+                <span className="fm-attr__lbl">{
+                  { STA: '体力', FOC: '专注', COL: '协作', CRE: '创造', END: '抗压', LRN: '学习' }[k]
+                } {k}</span>
+                <span className="fm-attr__val">{attrs[k]}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* DAILY QUESTS */}
+      {/* === DAILY QUESTS === */}
       <div className="fm-section">
         <div className="fm-section__head">
           <div className="fm-section__title">📜 每日任务</div>
@@ -180,7 +175,7 @@ export default function Lobby() {
         ))}
       </div>
 
-      {/* BADGES */}
+      {/* === BADGES === */}
       <div className="fm-section">
         <div className="fm-section__head">
           <div className="fm-section__title">🏅 勋章墙</div>
