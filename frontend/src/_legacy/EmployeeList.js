@@ -1,51 +1,48 @@
 import React, { useState } from 'react';
-import { 
-  FaTrash, 
-  FaEye, 
-  FaEnvelope, 
-  FaBuilding, 
+import { useTranslation } from 'react-i18next';
+import {
+  FaTrash,
+  FaEye,
+  FaEnvelope,
+  FaBuilding,
   FaUserTie,
   FaSearch,
-  FaFilter
+  FaFilter,
 } from 'react-icons/fa';
 import '../styles/EmployeeList.css';
 
 function EmployeeList({ employees, onDelete, onView }) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDepartment, setFilterDepartment] = useState('');
   const [sortField, setSortField] = useState('employee_id');
   const [sortDirection, setSortDirection] = useState('asc');
 
-  // Extract unique departments for filter
-  const departments = [...new Set(employees.map(emp => emp.department))].sort();
+  // Extract unique departments (raw English keys) for filter
+  const departments = [...new Set(employees.map((emp) => emp.department))].sort();
 
-  // Filter and sort employees
   const filteredEmployees = employees
-    .filter(employee => {
-      const matchesSearch = 
+    .filter((employee) => {
+      const matchesSearch =
         employee.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         employee.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         employee.email.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesDepartment = !filterDepartment || employee.department === filterDepartment;
-      
+
+      const matchesDepartment =
+        !filterDepartment || employee.department === filterDepartment;
+
       return matchesSearch && matchesDepartment;
     })
     .sort((a, b) => {
       let aValue = a[sortField];
       let bValue = b[sortField];
-      
-      // Handle string comparison
       if (typeof aValue === 'string') {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
       }
-      
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
+      return sortDirection === 'asc'
+        ? aValue > bValue ? 1 : -1
+        : aValue < bValue ? 1 : -1;
     });
 
   const handleSort = (field) => {
@@ -68,8 +65,8 @@ function EmployeeList({ employees, onDelete, onView }) {
         <div className="empty-icon">
           <FaUserTie />
         </div>
-        <h3>No Employees Found</h3>
-        <p>Add your first employee to get started</p>
+        <h3>{t('employees.list.emptyTitle')}</h3>
+        <p>{t('employees.list.emptyHint')}</p>
       </div>
     );
   }
@@ -81,7 +78,7 @@ function EmployeeList({ employees, onDelete, onView }) {
           <FaSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Search employees..."
+            placeholder={t('employees.list.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -90,13 +87,13 @@ function EmployeeList({ employees, onDelete, onView }) {
             <button
               className="clear-search"
               onClick={() => setSearchTerm('')}
-              aria-label="Clear search"
+              aria-label={t('employees.list.clearSearch')}
             >
               ×
             </button>
           )}
         </div>
-        
+
         <div className="filter-box">
           <FaFilter className="filter-icon" />
           <select
@@ -104,10 +101,10 @@ function EmployeeList({ employees, onDelete, onView }) {
             onChange={(e) => setFilterDepartment(e.target.value)}
             className="filter-select"
           >
-            <option value="">All Departments</option>
-            {departments.map(dept => (
+            <option value="">{t('employees.list.allDepartments')}</option>
+            {departments.map((dept) => (
               <option key={dept} value={dept}>
-                {dept}
+                {t(`employees.departments.${dept}`, dept)}
               </option>
             ))}
           </select>
@@ -115,7 +112,7 @@ function EmployeeList({ employees, onDelete, onView }) {
             <button
               className="clear-filter"
               onClick={() => setFilterDepartment('')}
-              aria-label="Clear filter"
+              aria-label={t('employees.list.clearFilter')}
             >
               ×
             </button>
@@ -124,42 +121,33 @@ function EmployeeList({ employees, onDelete, onView }) {
       </div>
 
       <div className="employee-count">
-        Showing {filteredEmployees.length} of {employees.length} employees
+        {t('employees.list.showing', {
+          count: filteredEmployees.length,
+          total: employees.length,
+        })}
       </div>
 
       <div className="employee-table-container">
         <table className="employee-table">
           <thead>
             <tr>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('employee_id')}
-              >
-                Employee ID {getSortIcon('employee_id')}
+              <th className="sortable" onClick={() => handleSort('employee_id')}>
+                {t('employees.list.headers.employeeId')} {getSortIcon('employee_id')}
               </th>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('full_name')}
-              >
-                Name {getSortIcon('full_name')}
+              <th className="sortable" onClick={() => handleSort('full_name')}>
+                {t('employees.list.headers.name')} {getSortIcon('full_name')}
               </th>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('email')}
-              >
-                Email {getSortIcon('email')}
+              <th className="sortable" onClick={() => handleSort('email')}>
+                {t('employees.list.headers.email')} {getSortIcon('email')}
               </th>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('department')}
-              >
-                Department {getSortIcon('department')}
+              <th className="sortable" onClick={() => handleSort('department')}>
+                {t('employees.list.headers.department')} {getSortIcon('department')}
               </th>
-              <th>Actions</th>
+              <th>{t('employees.list.headers.actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {filteredEmployees.map(employee => (
+            {filteredEmployees.map((employee) => (
               <tr key={employee.employee_id}>
                 <td>
                   <div className="employee-id-cell">
@@ -187,7 +175,9 @@ function EmployeeList({ employees, onDelete, onView }) {
                 <td>
                   <div className="department-cell">
                     <FaBuilding className="department-icon" />
-                    <span className="department-name">{employee.department}</span>
+                    <span className="department-name">
+                      {t(`employees.departments.${employee.department}`, employee.department)}
+                    </span>
                   </div>
                 </td>
                 <td>
@@ -196,7 +186,7 @@ function EmployeeList({ employees, onDelete, onView }) {
                       <button
                         className="btn-action btn-view"
                         onClick={() => onView(employee.employee_id)}
-                        title="View Details"
+                        title={t('employees.list.viewTitle')}
                       >
                         <FaEye />
                       </button>
@@ -204,7 +194,7 @@ function EmployeeList({ employees, onDelete, onView }) {
                     <button
                       className="btn-action btn-delete"
                       onClick={() => onDelete(employee.employee_id)}
-                      title="Delete Employee"
+                      title={t('employees.list.deleteTitle')}
                     >
                       <FaTrash />
                     </button>
@@ -218,7 +208,7 @@ function EmployeeList({ employees, onDelete, onView }) {
 
       {filteredEmployees.length === 0 && (
         <div className="no-results">
-          <p>No employees found matching your criteria</p>
+          <p>{t('employees.list.noResults')}</p>
           <button
             className="btn-clear-filters"
             onClick={() => {
@@ -226,7 +216,7 @@ function EmployeeList({ employees, onDelete, onView }) {
               setFilterDepartment('');
             }}
           >
-            Clear Filters
+            {t('employees.list.clearFilters')}
           </button>
         </div>
       )}

@@ -1,4 +1,17 @@
-# HRMS Lite
+# HRMS Lite → **HRMS Cloud** (v0.9 体验版)
+
+> 🆕 **本仓库已升级为完整的多租户 SaaS HRMS（双语 + 移动响应式 + 三地合规）**
+>
+> 📚 **完整文档套装** → [`/docs`](./docs/README.md) （5 份文档 · 约 2,500 行）
+> - [01 · 用户使用手册](./docs/01-USER-MANUAL.md)
+> - [02 · 完整功能介绍](./docs/02-FEATURE-CATALOG.md)
+> - [03 · 系统承载力白皮书](./docs/03-CAPACITY-ARCHITECTURE.md)
+> - [04 · 竞品对比与差异化优势](./docs/04-COMPETITIVE-ANALYSIS.md)
+> - [05 · 定价策略与商业模式](./docs/05-PRICING-STRATEGY.md)
+>
+> 🌐 **在线体验**：<https://3000-i4pnxjuiycfh59ft4rxdj-2e77fc33.sandbox.novita.ai> （点击角色卡片即可登录，无需密码）
+
+---
 
 ## 📌 Project Overview
 

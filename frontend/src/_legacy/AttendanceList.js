@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
-import { format, parseISO, isToday, isYesterday, isThisWeek, isSameMonth } from 'date-fns';
-import { 
-  FaCalendar, 
-  FaUser, 
-  FaCalendarCheck, 
+import { useTranslation } from 'react-i18next';
+import {
+  format,
+  parseISO,
+  isToday,
+  isYesterday,
+  isThisWeek,
+  isSameMonth,
+} from 'date-fns';
+import {
+  FaCalendar,
+  FaCalendarCheck,
   FaCalendarTimes,
   FaFilter,
   FaSort,
   FaDownload,
   FaPrint,
-  FaSearch
+  FaSearch,
 } from 'react-icons/fa';
 import '../styles/AttendanceList.css';
 
 function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDateRange, setFilterDateRange] = useState('all');
@@ -25,101 +33,106 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
         <div className="empty-icon">
           <FaCalendar />
         </div>
-        <h3>No Attendance Records</h3>
-        <p>No attendance has been marked yet for this employee</p>
+        <h3>{t('attendance.list.emptyTitle')}</h3>
+        <p>{t('attendance.list.emptyHint')}</p>
       </div>
     );
   }
 
-  // Calculate statistics
   const totalDays = attendance.length;
-  const presentDays = attendance.filter(a => a.status === 'Present').length;
-  const absentDays = attendance.filter(a => a.status === 'Absent').length;
+  const presentDays = attendance.filter((a) => a.status === 'Present').length;
+  const absentDays = attendance.filter((a) => a.status === 'Absent').length;
   const attendanceRate = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
 
-  // Filter attendance
-  const filteredAttendance = attendance
-    .filter(record => {
-      // Search filter
-      if (searchTerm && !record.employee_id.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
-      }
-      
-      // Status filter
-      if (filterStatus && record.status !== filterStatus) {
-        return false;
-      }
-      
-      // Date range filter
-      const recordDate = parseISO(record.date);
-      switch (filterDateRange) {
-        case 'today':
-          return isToday(recordDate);
-        case 'yesterday':
-          return isYesterday(recordDate);
-        case 'thisWeek':
-          return isThisWeek(recordDate);
-        case 'thisMonth':
-          return isSameMonth(recordDate, new Date());
-        case 'lastMonth':
-          const lastMonth = new Date();
-          lastMonth.setMonth(lastMonth.getMonth() - 1);
-          return isSameMonth(recordDate, lastMonth);
-        default:
-          return true;
-      }
-    });
+  const filteredAttendance = attendance.filter((record) => {
+    if (
+      searchTerm &&
+      !record.employee_id.toLowerCase().includes(searchTerm.toLowerCase())
+    ) {
+      return false;
+    }
+    if (filterStatus && record.status !== filterStatus) return false;
 
-  // Sort attendance
+    const recordDate = parseISO(record.date);
+    switch (filterDateRange) {
+      case 'today':
+        return isToday(recordDate);
+      case 'yesterday':
+        return isYesterday(recordDate);
+      case 'thisWeek':
+        return isThisWeek(recordDate);
+      case 'thisMonth':
+        return isSameMonth(recordDate, new Date());
+      case 'lastMonth': {
+        const lastMonth = new Date();
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+        return isSameMonth(recordDate, lastMonth);
+      }
+      default:
+        return true;
+    }
+  });
+
   const sortedAttendance = [...filteredAttendance].sort((a, b) => {
     if (sortConfig.key === 'date') {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
       return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
     } else if (sortConfig.key === 'status') {
-      const statusA = a.status;
-      const statusB = b.status;
-      if (statusA === statusB) return 0;
-      if (sortConfig.direction === 'asc') {
-        return statusA < statusB ? -1 : 1;
-      } else {
-        return statusA > statusB ? -1 : 1;
-      }
+      const sA = a.status;
+      const sB = b.status;
+      if (sA === sB) return 0;
+      return sortConfig.direction === 'asc'
+        ? sA < sB ? -1 : 1
+        : sA > sB ? -1 : 1;
     }
     return 0;
   });
 
   const handleSort = (key) => {
-    setSortConfig(prevConfig => ({
+    setSortConfig((prev) => ({
       key,
-      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
   const handleExport = () => {
+    // CSV header is in current language; status is translated for human readability,
+    // employee_id / date stay raw for downstream processing.
+    const csvHeader = [
+      t('attendance.list.headers.date'),
+      t('dashboard.table.employeeId'),
+      t('dashboard.table.name'),
+      t('attendance.list.headers.status'),
+      t('attendance.list.headers.day'),
+    ];
     const csvContent = [
-      ['Date', 'Employee ID', 'Name', 'Status', 'Day'],
-      ...attendance.map(record => [
+      csvHeader,
+      ...attendance.map((record) => [
         record.date,
         record.employee_id,
         employee?.full_name || '',
-        record.status,
-        format(parseISO(record.date), 'EEEE')
-      ])
-    ].map(row => row.join(',')).join('\n');
+        t(`attendance.status.${record.status}`, record.status),
+        format(parseISO(record.date), 'EEEE'),
+      ]),
+    ]
+      .map((row) => row.join(','))
+      .join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    // Add UTF-8 BOM so Excel opens Chinese correctly
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `attendance_${employee?.employee_id || 'all'}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    a.download = `attendance_${employee?.employee_id || 'all'}_${format(
+      new Date(),
+      'yyyy-MM-dd'
+    )}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   const getSortIcon = (key) => {
     if (sortConfig.key !== key) return <FaSort />;
@@ -137,13 +150,17 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
             <div className="profile-info">
               <h3>{employee.full_name}</h3>
               <p className="employee-meta">
-                <span className="employee-id">ID: {employee.employee_id}</span>
+                <span className="employee-id">
+                  {t('dashboard.table.employeeId')}: {employee.employee_id}
+                </span>
                 <span className="separator">•</span>
-                <span className="employee-dept">{employee.department}</span>
+                <span className="employee-dept">
+                  {t(`employees.departments.${employee.department}`, employee.department)}
+                </span>
               </p>
             </div>
           </div>
-          
+
           <div className="attendance-stats">
             <div className="stat-card">
               <div className="stat-icon total">
@@ -151,39 +168,37 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
               </div>
               <div className="stat-details">
                 <div className="stat-value">{totalDays}</div>
-                <div className="stat-label">Total Days</div>
+                <div className="stat-label">{t('attendance.list.stats.totalDays')}</div>
               </div>
             </div>
-            
+
             <div className="stat-card">
               <div className="stat-icon present">
                 <FaCalendarCheck />
               </div>
               <div className="stat-details">
                 <div className="stat-value">{presentDays}</div>
-                <div className="stat-label">Present</div>
+                <div className="stat-label">{t('attendance.list.stats.present')}</div>
               </div>
             </div>
-            
+
             <div className="stat-card">
               <div className="stat-icon absent">
                 <FaCalendarTimes />
               </div>
               <div className="stat-details">
                 <div className="stat-value">{absentDays}</div>
-                <div className="stat-label">Absent</div>
+                <div className="stat-label">{t('attendance.list.stats.absent')}</div>
               </div>
             </div>
-            
+
             <div className="stat-card">
               <div className="stat-icon rate">
-                <div className="rate-circle">
-                  {attendanceRate}%
-                </div>
+                <div className="rate-circle">{attendanceRate}%</div>
               </div>
               <div className="stat-details">
                 <div className="stat-value">{attendanceRate}%</div>
-                <div className="stat-label">Rate</div>
+                <div className="stat-label">{t('attendance.list.stats.rate')}</div>
               </div>
             </div>
           </div>
@@ -195,13 +210,13 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
           <FaSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Search by employee ID..."
+            placeholder={t('attendance.list.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
         </div>
-        
+
         <div className="filter-controls">
           <div className="filter-group">
             <FaFilter className="filter-icon" />
@@ -210,35 +225,35 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="filter-select"
             >
-              <option value="">All Status</option>
-              <option value="Present">Present</option>
-              <option value="Absent">Absent</option>
+              <option value="">{t('attendance.list.allStatus')}</option>
+              <option value="Present">{t('attendance.status.Present')}</option>
+              <option value="Absent">{t('attendance.status.Absent')}</option>
             </select>
           </div>
-          
+
           <div className="filter-group">
             <select
               value={filterDateRange}
               onChange={(e) => setFilterDateRange(e.target.value)}
               className="filter-select"
             >
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="yesterday">Yesterday</option>
-              <option value="thisWeek">This Week</option>
-              <option value="thisMonth">This Month</option>
-              <option value="lastMonth">Last Month</option>
+              <option value="all">{t('attendance.list.dateRange.all')}</option>
+              <option value="today">{t('attendance.list.dateRange.today')}</option>
+              <option value="yesterday">{t('attendance.list.dateRange.yesterday')}</option>
+              <option value="thisWeek">{t('attendance.list.dateRange.thisWeek')}</option>
+              <option value="thisMonth">{t('attendance.list.dateRange.thisMonth')}</option>
+              <option value="lastMonth">{t('attendance.list.dateRange.lastMonth')}</option>
             </select>
           </div>
-          
+
           <div className="action-buttons">
             <button className="btn-action btn-export" onClick={handleExport}>
               <FaDownload />
-              Export
+              {t('attendance.list.export')}
             </button>
             <button className="btn-action btn-print" onClick={handlePrint}>
               <FaPrint />
-              Print
+              {t('attendance.list.print')}
             </button>
           </div>
         </div>
@@ -246,8 +261,11 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
 
       <div className="attendance-summary-bar">
         <div className="summary-info">
-          Showing {sortedAttendance.length} of {attendance.length} records
-          {searchTerm && ` matching "${searchTerm}"`}
+          {t('attendance.list.showing', {
+            count: sortedAttendance.length,
+            total: attendance.length,
+          })}
+          {searchTerm && t('attendance.list.matching', { term: searchTerm })}
         </div>
         {sortedAttendance.length === 0 && (
           <button
@@ -258,7 +276,7 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
               setFilterDateRange('all');
             }}
           >
-            Clear Filters
+            {t('attendance.list.clearFilters')}
           </button>
         )}
       </div>
@@ -267,36 +285,29 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
         <table className="attendance-table">
           <thead>
             <tr>
-              <th 
-                className="sortable"
-                onClick={() => handleSort('date')}
-              >
+              <th className="sortable" onClick={() => handleSort('date')}>
                 <div className="sort-header">
-                  Date
+                  {t('attendance.list.headers.date')}
                   <span className="sort-icon">{getSortIcon('date')}</span>
                 </div>
               </th>
-              <th>Day</th>
-              {showEmployeeColumn && <th>Employee</th>}
-              <th 
-                className="sortable"
-                onClick={() => handleSort('status')}
-              >
+              <th>{t('attendance.list.headers.day')}</th>
+              {showEmployeeColumn && <th>{t('attendance.list.headers.employee')}</th>}
+              <th className="sortable" onClick={() => handleSort('status')}>
                 <div className="sort-header">
-                  Status
+                  {t('attendance.list.headers.status')}
                   <span className="sort-icon">{getSortIcon('status')}</span>
                 </div>
               </th>
-              <th>Remarks</th>
+              <th>{t('attendance.list.headers.remarks')}</th>
             </tr>
           </thead>
           <tbody>
-            {sortedAttendance.map((record, index) => {
+            {sortedAttendance.map((record) => {
               const recordDate = parseISO(record.date);
               const isTodayDate = isToday(recordDate);
-              
               return (
-                <tr 
+                <tr
                   key={`${record.employee_id}-${record.date}`}
                   className={isTodayDate ? 'today-row' : ''}
                 >
@@ -310,7 +321,7 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
                         </div>
                       </div>
                       {isTodayDate && (
-                        <span className="today-badge">Today</span>
+                        <span className="today-badge">{t('attendance.list.todayBadge')}</span>
                       )}
                     </div>
                   </td>
@@ -323,9 +334,7 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
                   {showEmployeeColumn && (
                     <td>
                       <div className="employee-cell">
-                        <div className="employee-avatar">
-                          {record.employee_id.charAt(0)}
-                        </div>
+                        <div className="employee-avatar">{record.employee_id.charAt(0)}</div>
                         <div className="employee-info">
                           <div className="employee-id">{record.employee_id}</div>
                           {employee && (
@@ -340,12 +349,12 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
                       {record.status === 'Present' ? (
                         <>
                           <FaCalendarCheck className="status-icon" />
-                          Present
+                          {t('attendance.status.Present')}
                         </>
                       ) : (
                         <>
                           <FaCalendarTimes className="status-icon" />
-                          Absent
+                          {t('attendance.status.Absent')}
                         </>
                       )}
                     </span>
@@ -353,9 +362,13 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
                   <td>
                     <div className="remarks-cell">
                       {record.status === 'Present' ? (
-                        <span className="remark-present">Regular attendance</span>
+                        <span className="remark-present">
+                          {t('attendance.list.remarkPresent')}
+                        </span>
                       ) : (
-                        <span className="remark-absent">Leave/Absent</span>
+                        <span className="remark-absent">
+                          {t('attendance.list.remarkAbsent')}
+                        </span>
                       )}
                     </div>
                   </td>
@@ -368,7 +381,7 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
 
       {sortedAttendance.length === 0 && filteredAttendance.length === 0 && (
         <div className="no-results">
-          <p>No attendance records found matching your criteria</p>
+          <p>{t('attendance.list.noResults')}</p>
           <button
             className="btn-clear-all"
             onClick={() => {
@@ -377,7 +390,7 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
               setFilterDateRange('all');
             }}
           >
-            Clear All Filters
+            {t('attendance.list.clearAll')}
           </button>
         </div>
       )}
@@ -386,20 +399,28 @@ function AttendanceList({ attendance, employee, showEmployeeColumn = true }) {
         <div className="footer-summary">
           <div className="summary-item">
             <div className="summary-dot present"></div>
-            <span>Present: {presentDays}</span>
+            <span>
+              {t('attendance.list.stats.present')}: {presentDays}
+            </span>
           </div>
           <div className="summary-item">
             <div className="summary-dot absent"></div>
-            <span>Absent: {absentDays}</span>
+            <span>
+              {t('attendance.list.stats.absent')}: {absentDays}
+            </span>
           </div>
           <div className="summary-item">
             <div className="summary-dot total"></div>
-            <span>Total: {totalDays}</span>
+            <span>
+              {t('attendance.list.stats.totalDays')}: {totalDays}
+            </span>
           </div>
         </div>
         <div className="footer-actions">
           <span className="last-updated">
-            Last updated: {format(new Date(), 'MMM dd, yyyy HH:mm')}
+            {t('attendance.list.footer.lastUpdated', {
+              datetime: format(new Date(), 'MMM dd, yyyy HH:mm'),
+            })}
           </span>
         </div>
       </div>

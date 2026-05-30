@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import { employeeAPI } from '../services/api';
 import EmployeeForm from '../components/EmployeeForm';
 import EmployeeList from '../components/EmployeeList';
 import '../styles/EmployeeManagement.css';
 
 function EmployeeManagement() {
+  const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,8 +19,8 @@ function EmployeeManagement() {
       setEmployees(response.data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch employees');
-      toast.error('Failed to fetch employees');
+      setError(t('employees.fetchFailed'));
+      toast.error(t('employees.fetchFailed'));
     } finally {
       setLoading(false);
     }
@@ -31,21 +33,21 @@ function EmployeeManagement() {
   const handleAddEmployee = async (employeeData) => {
     try {
       await employeeAPI.create(employeeData);
-      toast.success('Employee added successfully');
+      toast.success(t('employees.addSuccess'));
       fetchEmployees();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Failed to add employee');
+      toast.error(err.response?.data?.detail || t('employees.addFailed'));
     }
   };
 
   const handleDeleteEmployee = async (employeeId) => {
-    if (window.confirm('Are you sure you want to delete this employee?')) {
+    if (window.confirm(t('employees.deleteConfirm'))) {
       try {
         await employeeAPI.delete(employeeId);
-        toast.success('Employee deleted successfully');
+        toast.success(t('employees.deleteSuccess'));
         fetchEmployees();
       } catch (err) {
-        toast.error(err.response?.data?.detail || 'Failed to delete employee');
+        toast.error(err.response?.data?.detail || t('employees.deleteFailed'));
       }
     }
   };
@@ -54,7 +56,7 @@ function EmployeeManagement() {
     return (
       <div className="loading-container">
         <div className="spinner"></div>
-        <p>Loading employees...</p>
+        <p>{t('employees.loading')}</p>
       </div>
     );
   }
@@ -62,8 +64,8 @@ function EmployeeManagement() {
   return (
     <div className="employee-management">
       <div className="page-header">
-        <h2>Employee Management</h2>
-        <p>Add, view, and manage employee records</p>
+        <h2>{t('employees.pageTitle')}</h2>
+        <p>{t('employees.pageSubtitle')}</p>
       </div>
 
       <div className="content-grid">
@@ -76,12 +78,12 @@ function EmployeeManagement() {
             <div className="error-state">
               <p>{error}</p>
               <button onClick={fetchEmployees} className="btn-retry">
-                Retry
+                {t('common.retry')}
               </button>
             </div>
           ) : employees.length === 0 ? (
             <div className="empty-state">
-              <p>No employees found. Add your first employee!</p>
+              <p>{t('employees.emptyState')}</p>
             </div>
           ) : (
             <EmployeeList
