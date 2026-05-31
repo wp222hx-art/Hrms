@@ -1,0 +1,22 @@
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.card__title { font-size: var(--fs-15); font-weight: 600; color: var(--text-1); }
+.card__extra { font-size: var(--fs-13); color: var(--text-3); display: flex; gap: var(--sp-2); align-items: center; }
+.card__body--padded { padding: var(--sp-4); }
+@media (max-width: 480px) {
+  .card__body--padded { padding: var(--sp-3); }
+}

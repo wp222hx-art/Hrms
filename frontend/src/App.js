@@ -1,44 +1,132 @@
 import React from 'react';
-// CHANGE THIS LINE:
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import './styles/App.css';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useApp } from './context/AppContext';
+import AppShell from './layouts/AppShell';
 
-import EmployeeManagement from './pages/EmployeeManagement';
-import AttendanceManagement from './pages/AttendanceManagement';
+import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
+import EmployeeList from './pages/employees/EmployeeList';
+import EmployeeDetail from './pages/employees/EmployeeDetail';
+import Attendance from './pages/attendance/Attendance';
+import LeaveList from './pages/leave/LeaveList';
+import ExpenseList from './pages/expense/ExpenseList';
+import Payroll from './pages/payroll/Payroll';
+import SelfService from './pages/self/SelfService';
+import AdminConsole from './pages/admin/AdminConsole';
 
-function App() {
-  return (
-    <Router>
-      <div className="app">
-        <nav className="navbar">
-          <div className="container">
-            <h1 className="logo">HRMS Lite</h1>
-            <div className="nav-links">
-              {/* Links will automatically work with HashRouter */}
-              <Link to="/" className="nav-link">Dashboard</Link>
-              <Link to="/employees" className="nav-link">Employees</Link>
-              <Link to="/attendance" className="nav-link">Attendance</Link>
-            </div>
-          </div>
-        </nav>
+// Enterprise platform (Feishu/DingTalk-style)
+import Workspace from './pages/workspace/Workspace';
+import IM from './pages/im/IM';
+import DepartmentTree from './pages/departments/DepartmentTree';
+import WorkflowCenter from './pages/workflow/WorkflowCenter';
+import WorkflowForm from './pages/workflow/WorkflowForm';
+import WorkflowDetail from './pages/workflow/WorkflowDetail';
+import Announcements from './pages/announcements/Announcements';
+import NotificationCenter from './pages/notifications/NotificationCenter';
+import Handbook from './pages/handbook/Handbook';
+import Training from './pages/training/Training';
+import TrainingCourse from './pages/training/TrainingCourse';
 
-        <main className="main-content">
-          <div className="container">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/employees" element={<EmployeeManagement />} />
-              <Route path="/attendance" element={<AttendanceManagement />} />
-            </Routes>
-          </div>
-        </main>
+// Funmode (game-style UI)
+import FunShell from './pages/funmode/FunShell';
+import Lobby from './pages/funmode/Lobby';
+import Quest from './pages/funmode/Quest';
+import Squad from './pages/funmode/Squad';
+import Loot from './pages/funmode/Loot';
+import Rank from './pages/funmode/Rank';
+import Vault from './pages/funmode/Vault';
+import Expense from './pages/funmode/Expense';
+import Academy from './pages/funmode/Academy';
+import Welfare from './pages/funmode/Welfare';
+import SocialWall from './pages/funmode/SocialWall';
+import Mentor from './pages/funmode/Mentor';
+import Ops from './pages/funmode/Ops';
 
-        <ToastContainer position="top-right" autoClose={3000} />
-      </div>
-    </Router>
-  );
+import './styles/tokens.css';
+import './styles/global.css';
+
+function Protected({ children, allow }) {
+  const { session, bootLoading } = useApp();
+  if (bootLoading) {
+    return <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-3)' }}>Loading…</div>;
+  }
+  if (!session) return <Navigate to="/login" replace />;
+  if (allow && !allow.includes(session.role)) {
+    return <Navigate to={session.role === 'super_admin' ? '/admin' : '/workspace'} replace />;
+  }
+  return children;
 }
 
-export default App;
+function RootRedirect() {
+  const { session, bootLoading } = useApp();
+  if (bootLoading) return <div style={{ padding: 40, textAlign: 'center' }}>Loading…</div>;
+  if (!session) return <Navigate to="/login" replace />;
+  return <Navigate to={session.role === 'super_admin' ? '/admin' : '/workspace'} replace />;
+}
+
+export default function App() {
+  return (
+    <HashRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<RootRedirect />} />
+
+        <Route element={<Protected><AppShell /></Protected>}>
+          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* Enterprise platform — Feishu/DingTalk-style */}
+          <Route path="/workspace"          element={<Workspace />} />
+          <Route path="/im"                 element={<IM />} />
+          <Route path="/departments"        element={<DepartmentTree />} />
+          <Route path="/workflow"           element={<WorkflowCenter />} />
+          <Route path="/workflow/new/:templateId" element={<WorkflowForm />} />
+          <Route path="/workflow/:id"       element={<WorkflowDetail />} />
+          <Route path="/announcements"      element={<Announcements />} />
+          <Route path="/notifications"      element={<NotificationCenter />} />
+          <Route path="/handbook"           element={<Handbook />} />
+          <Route path="/training"           element={<Training />} />
+          <Route path="/training/:courseId" element={<TrainingCourse />} />
+          {/* Approval Bot links use /approval/:id — alias to /workflow/:id */}
+          <Route path="/approval/:id"       element={<WorkflowDetail />} />
+          <Route path="/employees" element={
+            <Protected allow={['hr_admin', 'manager']}><EmployeeList /></Protected>
+          } />
+          <Route path="/employees/:id" element={
+            <Protected allow={['hr_admin', 'manager']}><EmployeeDetail /></Protected>
+          } />
+          <Route path="/attendance" element={<Attendance />} />
+          <Route path="/leave" element={<LeaveList />} />
+          <Route path="/expense" element={<ExpenseList />} />
+          <Route path="/payroll" element={
+            <Protected allow={['hr_admin']}><Payroll /></Protected>
+          } />
+          <Route path="/self-service" element={<SelfService />} />
+          <Route path="/admin" element={
+            <Protected allow={['super_admin']}><AdminConsole /></Protected>
+          } />
+          <Route path="/admin/tenants" element={
+            <Protected allow={['super_admin']}><AdminConsole /></Protected>
+          } />
+        </Route>
+
+        {/* Funmode — game-style UI (mobile-optimized cyberpunk) */}
+        <Route element={<Protected><FunShell /></Protected>}>
+          <Route path="/fun"          element={<Lobby />} />
+          <Route path="/fun/quest"    element={<Quest />} />
+          <Route path="/fun/academy"  element={<Academy />} />
+          <Route path="/fun/expense"  element={<Expense />} />
+          <Route path="/fun/welfare"  element={<Welfare />} />
+          <Route path="/fun/wall"     element={<SocialWall />} />
+          <Route path="/fun/mentor"   element={<Mentor />} />
+          <Route path="/fun/ops"      element={<Ops />} />
+          <Route path="/fun/cards"    element={<Vault />} />
+          <Route path="/fun/squad"    element={<Squad />} />
+          <Route path="/fun/loot"     element={<Loot />} />
+          <Route path="/fun/rank"     element={<Rank />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </HashRouter>
+  );
+}

@@ -1,0 +1,54 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field__label {
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--text-2);
+}
+.field__req { color: var(--danger-500); margin-left: 2px; }
+.field__hint { font-size: var(--fs-12); color: var(--text-3); }
+.field__hint--error { color: var(--danger-700); }
+
+.input {
+  height: 38px;
+  padding: 0 var(--sp-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-2);
+  background: var(--bg-surface);
+  color: var(--text-1);
+  outline: none;
+  transition: border-color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease);
+  width: 100%;
+  font-size: var(--fs-14);
+}
+.input::placeholder { color: var(--gray-400); }
+.input:focus {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px rgba(59, 99, 236, .18);
+}
+.field--error .input {
+  border-color: var(--danger-500);
+}
+.field--error .input:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .18);
+}
+
+.input--textarea {
+  height: auto;
+  min-height: 80px;
+  padding: var(--sp-2) var(--sp-3);
+  resize: vertical;
+}
+
+.input--select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'><path d='M5.5 7.5l4.5 4.5 4.5-4.5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 18px 18px;
+  padding-right: 32px;
+}

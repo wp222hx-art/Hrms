@@ -1,0 +1,127 @@
+/* =========================================
+   HRMS Design Tokens
+   Single source of truth for colors, spacing, typography.
+   ========================================= */
+
+:root {
+  /* --- Brand --- */
+  --brand-50:  #eef4ff;
+  --brand-100: #d9e6ff;
+  --brand-200: #b6cdff;
+  --brand-300: #87aaff;
+  --brand-400: #5d86fb;
+  --brand-500: #3b63ec;   /* primary */
+  --brand-600: #2a4bd1;
+  --brand-700: #2239a8;
+  --brand-800: #1d2f85;
+  --brand-900: #172569;
+
+  /* --- Neutral (slate) --- */
+  --gray-0:   #ffffff;
+  --gray-50:  #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  /* --- Semantic --- */
+  --success-50:  #ecfdf5;
+  --success-500: #10b981;
+  --success-700: #047857;
+  --warning-50:  #fffbeb;
+  --warning-500: #f59e0b;
+  --warning-700: #b45309;
+  --danger-50:   #fef2f2;
+  --danger-500:  #ef4444;
+  --danger-700:  #b91c1c;
+  --info-50:     #eff6ff;
+  --info-500:    #3b82f6;
+  --info-700:    #1d4ed8;
+
+  /* --- Surface --- */
+  --bg-app:     var(--gray-50);
+  --bg-surface: var(--gray-0);
+  --bg-elev:    var(--gray-0);
+  --border:     var(--gray-200);
+  --border-strong: var(--gray-300);
+  --text-1:     var(--gray-900);
+  --text-2:     var(--gray-700);
+  --text-3:     var(--gray-500);
+  --text-inv:   var(--gray-0);
+
+  /* --- Spacing (4px scale) --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* --- Radii --- */
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 8px;
+  --r-4: 12px;
+  --r-5: 16px;
+  --r-full: 9999px;
+
+  /* --- Shadows --- */
+  --sh-1: 0 1px 2px rgba(15, 23, 42, .06);
+  --sh-2: 0 2px 6px rgba(15, 23, 42, .08);
+  --sh-3: 0 6px 16px rgba(15, 23, 42, .10);
+  --sh-4: 0 12px 32px rgba(15, 23, 42, .14);
+
+  /* --- Typography --- */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue",
+               Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-20: 20px;
+  --fs-24: 24px;
+  --fs-30: 30px;
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+
+  /* --- Layout --- */
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 64px;
+  --topbar-h: 56px;
+  --content-max: 1280px;
+
+  /* --- Motion --- */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+}
+
+/* Dark theme override (toggle by data-theme="dark" on <html>) */
+[data-theme="dark"] {
+  --bg-app:     #0b1220;
+  --bg-surface: #131c30;
+  --bg-elev:    #182343;
+  --border:     #243154;
+  --border-strong: #2f3f6c;
+  --text-1:     #e8edf7;
+  --text-2:     #c0c9de;
+  --text-3:     #8b96b3;
+  --sh-1: 0 1px 2px rgba(0,0,0,.4);
+  --sh-2: 0 2px 6px rgba(0,0,0,.5);
+  --sh-3: 0 6px 16px rgba(0,0,0,.55);
+  --sh-4: 0 12px 32px rgba(0,0,0,.6);
+}
