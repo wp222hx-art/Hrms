@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaClock, FaCertificate, FaGraduationCap, FaCheck, FaPlay, FaBolt, FaTrophy } from 'react-icons/fa';
 import { useApp } from '../../context/AppContext';
-import { trainingApi } from '../../mock/enterpriseApi';
+import { trainingApi, regionMeta } from '../../mock/enterpriseApi';
 import { useCurrentEmployee, relativeTime } from '../../utils/format';
 import EmptyState from '../../components/ui/EmptyState';
 import './Training.css';
@@ -151,6 +151,11 @@ export default function Training() {
                   <span className="tr-cover-emoji">{c.cover}</span>
                   {c.required && (
                     <span className="tr-card-badge"><FaBolt /> 必修</span>
+                  )}
+                  {c.region && (
+                    <span className="tr-card-region" title={`${c.region} 区域专属`}>
+                      {(regionMeta[c.region] || {}).flag} 本地
+                    </span>
                   )}
                   {enr?.status === 'completed' && (
                     <span className="tr-card-done"><FaCheck /></span>

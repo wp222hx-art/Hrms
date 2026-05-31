@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FaSearch, FaBookmark, FaCheckCircle, FaTags, FaBookOpen, FaArrowLeft } from 'react-icons/fa';
+import { FaSearch, FaBookmark, FaCheckCircle, FaTags, FaBookOpen, FaArrowLeft, FaShieldAlt } from 'react-icons/fa';
 import { useApp } from '../../context/AppContext';
-import { handbookApi } from '../../mock/enterpriseApi';
+import { handbookApi, regionMeta } from '../../mock/enterpriseApi';
 import { useCurrentEmployee, relativeTime } from '../../utils/format';
 import EmptyState from '../../components/ui/EmptyState';
 import './Handbook.css';
@@ -107,17 +107,24 @@ export default function Handbook() {
   const allCount = articles.length;
   const mustReadCount = articles.filter((a) => a.mustRead).length;
   const myReadCount = me ? articles.filter((a) => a.readers.includes(me.id)).length : 0;
+  const region = tenant?.region || 'SG';
+  const meta = regionMeta[region] || regionMeta.SG;
+  // Read version from any article (all articles in this tenant share the same version)
+  const handbookVersion = articles[0]?.version || `${region}-v2024.Q4`;
 
   return (
     <div className="hb-page">
       {/* Left: category tree + filters */}
       <aside className="hb-side">
         <div className="hb-side-head">
-          <FaBookOpen className="hb-side-icon" />
+          <span className="hb-flag" title={meta.name}>{meta.flag}</span>
           <div>
             <div className="hb-side-title">员工手册</div>
-            <div className="hb-side-sub">Knowledge Base</div>
+            <div className="hb-side-sub">{meta.nameZh} · {meta.name}</div>
           </div>
+        </div>
+        <div className="hb-version">
+          <FaShieldAlt /> 版本 {handbookVersion}
         </div>
 
         <div className="hb-search">

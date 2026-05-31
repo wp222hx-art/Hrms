@@ -28,6 +28,27 @@
   font-size: 22px;
   color: var(--brand-500, #3b63ec);
 }
+.hb-flag {
+  font-size: 36px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+.hb-version {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted, #6b7280);
+  background: var(--bg-app, #f9fafb);
+  padding: 4px 10px;
+  border-radius: 12px;
+  align-self: flex-start;
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+.hb-version svg {
+  font-size: 10px;
+  color: var(--brand-500, #3b63ec);
+}
 .hb-side-title {
   font-size: 16px;
   font-weight: 600;
